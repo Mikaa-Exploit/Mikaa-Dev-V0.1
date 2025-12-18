@@ -1,5 +1,8 @@
--- OBLIVION BOAT CHAOS MOBILE ULTIMATE
--- Owner: MikaaDev V0.2 | Auto Teleport + Auto Launch
+-- ============================================
+-- [ MIKAADEV'S CHAOS BOAT SCRIPT v2.0 ]
+-- Created by: MikaaDev
+-- Platform: Roblox Mobile (Android)
+-- ============================================
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -9,312 +12,362 @@ local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
--- Config
+-- CONFIGURATION
 local chaosEnabled = false
 local currentTarget = nil
 local chaosBoat = nil
-local teleportBeforeRush = true -- Auto teleport sebelum rush
+local teleportBeforeRush = true
 
--- Enkripsi owner info (biar aman di GitHub)
-local enc = function(str)
-    local result = ""
-    for i = 1, #str do
-        result = result .. string.char(string.byte(str, i) + 3)
+-- MIKAADEV OWNER IDENTIFICATION
+local OWNER_NAME = "MikaaDev"
+local OWNER_VERSION = "v2.0"
+local EXECUTOR_NAME = "OBLIVION"
+
+-- Encryption untuk protect di GitHub
+local function encryptText(text)
+    local encrypted = ""
+    for i = 1, #text do
+        encrypted = encrypted .. string.char(string.byte(text, i) + 7)
     end
-    return result
+    return encrypted
 end
 
-local dec = function(encStr)
-    local result = ""
-    for i = 1, #encStr do
-        result = result .. string.char(string.byte(encStr, i) - 3)
+local function decryptText(encrypted)
+    local decrypted = ""
+    for i = 1, #encrypted do
+        decrypted = decrypted .. string.char(string.byte(encrypted, i) - 7)
     end
-    return result
+    return decrypted
 end
 
--- Print owner info (decrypted saat di-execute)
-local ownerEncrypted = "Plnnd#Hqzd#Yhuv#71" -- "MikaaDev V0.2" encrypted
-print("[OBLIVION] " .. dec(ownerEncrypted))
-print("[MODE] Android Ultimate | Teleport + Launch")
+-- Owner metadata (encrypted)
+local encryptedOwner = encryptText("OWNER: " .. OWNER_NAME .. " " .. OWNER_VERSION)
+local encryptedSystem = encryptText("SYSTEM: " .. EXECUTOR_NAME .. " Execution Engine")
 
--- ========== BUAT BOAT MEMATIKAN ==========
-local function createUltimateBoat()
+-- Print saat execute
+print("========================================")
+print(decryptText(encryptedOwner))
+print(decryptText(encryptedSystem))
+print("========================================")
+print("[MIKAADEV] Chaos Boat System Activated!")
+print("========================================")
+
+-- ========== MIKAADEV'S BOAT CREATION ==========
+local function createMikaaBoat()
     local boat = Instance.new("Part")
-    boat.Name = "OBLIVION_DEATH_BOAT"
-    boat.Size = Vector3.new(15, 5, 30)
+    boat.Name = "MIKAADEV_CHAOS_BOAT"
+    boat.Size = Vector3.new(16, 6, 32)
     boat.Material = Enum.Material.Neon
-    boat.Color = Color3.fromRGB(255, 0, 100)
+    boat.Color = Color3.fromRGB(255, 100, 0) -- Orange MikaaDev theme
     boat.Anchored = false
     boat.CanCollide = false
-    boat.Transparency = 0.3
+    boat.Transparency = 0.25
     boat.Parent = workspace
 
-    -- Seat
+    -- Add MikaaDev tag
+    local tag = Instance.new("BillboardGui")
+    tag.Name = "MikaaTag"
+    tag.Size = UDim2.new(0, 200, 0, 50)
+    tag.AlwaysOnTop = true
+    tag.Parent = boat
+    
+    local label = Instance.new("TextLabel")
+    label.Text = "MIKAADEV CHAOS BOAT"
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.TextColor3 = Color3.fromRGB(255, 255, 0)
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.GothamBold
+    label.TextScaled = true
+    label.Parent = tag
+
+    -- Premium seat
     local seat = Instance.new("Seat")
-    seat.Size = Vector3.new(5, 3, 5)
-    seat.CFrame = boat.CFrame * CFrame.new(0, 3, -8)
+    seat.Name = "MikaaSeat"
+    seat.Size = Vector3.new(6, 4, 6)
+    seat.CFrame = boat.CFrame * CFrame.new(0, 4, -10)
     seat.Parent = boat
 
-    -- Engine glow
+    -- Engine effects
     local engine = Instance.new("Part")
-    engine.Size = Vector3.new(4, 4, 4)
-    engine.Color = Color3.fromRGB(0, 255, 255)
+    engine.Name = "MikaaEngine"
+    engine.Size = Vector3.new(5, 5, 5)
+    engine.Color = Color3.fromRGB(0, 200, 255)
     engine.Material = Enum.Material.Neon
-    engine.Transparency = 0.4
-    engine.CFrame = boat.CFrame * CFrame.new(0, 0, -15)
+    engine.Transparency = 0.3
+    engine.CFrame = boat.CFrame * CFrame.new(0, 0, -18)
     engine.Parent = boat
-    Instance.new("Weld", engine).Part0 = boat; Instance.new("Weld", engine).Part1 = engine
+    
+    local weld = Instance.new("Weld")
+    weld.Part0 = boat
+    weld.Part1 = engine
+    weld.Parent = engine
 
-    -- Velocity & force
+    -- Physics
     local bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.MaxForce = Vector3.new(50000, 50000, 50000)
+    bodyVelocity.Name = "MikaaVelocity"
+    bodyVelocity.MaxForce = Vector3.new(60000, 60000, 60000)
     bodyVelocity.Velocity = Vector3.new(0, 0, 0)
     bodyVelocity.Parent = boat
 
     local bodyForce = Instance.new("BodyForce")
-    bodyForce.Force = Vector3.new(0, boat:GetMass() * workspace.Gravity * 1.5, 0)
+    bodyForce.Name = "MikaaLift"
+    bodyForce.Force = Vector3.new(0, boat:GetMass() * workspace.Gravity * 1.8, 0)
     bodyForce.Parent = boat
 
-    -- Annoying sound
+    -- Sound
     local sound = Instance.new("Sound")
-    sound.SoundId = "rbxassetid://9126423981"
+    sound.Name = "MikaaSound"
+    sound.SoundId = "rbxassetid://735030710"
     sound.Looped = true
-    sound.Volume = 7
+    sound.Volume = 8
     sound.Parent = boat
 
+    print("[MIKAADEV] Boat created successfully!")
     return boat, bodyVelocity, sound
 end
 
--- ========== TELEPORT KE TARGET ==========
-local function teleportToTarget(targetPlayer)
-    if not targetPlayer or not targetPlayer.Character then return false end
+-- ========== MIKAADEV TELEPORT SYSTEM ==========
+local function mikaaTeleport(targetPlayer)
+    if not targetPlayer or not targetPlayer.Character then 
+        print("[MIKAADEV] Invalid target!")
+        return false 
+    end
     
     local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not targetRoot then return false end
     
     if chaosBoat then
-        -- Teleport boat di atas target (siap launch)
-        chaosBoat.CFrame = targetRoot.CFrame * CFrame.new(0, 25, 0) -- Tinggi biar kelihatan
+        -- Teleport dengan style MikaaDev
+        chaosBoat.CFrame = targetRoot.CFrame * CFrame.new(0, 30, 0)
+        
+        -- Effect
+        local effect = Instance.new("Explosion")
+        effect.Position = chaosBoat.Position
+        effect.BlastPressure = 0
+        effect.BlastRadius = 25
+        effect.Parent = workspace
+        
+        print("[MIKAADEV] Teleported to " .. targetPlayer.Name)
         return true
     end
     
     return false
 end
 
--- ========== LAUNCH PLAYER KE LANGIT ==========
-local function launchPlayer(targetPlayer)
+-- ========== MIKAADEV LAUNCH SYSTEM ==========
+local function mikaaLaunch(targetPlayer)
     if not targetPlayer or not targetPlayer.Character then return end
     
     local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
     local humanoid = targetPlayer.Character:FindFirstChild("Humanoid")
     
     if targetRoot then
-        -- FORCE LAUNCH TINGGI
+        -- SUPER LAUNCH
         targetRoot.Velocity = Vector3.new(
-            math.random(-30, 30),  -- Sedikit horizontal
-            math.random(200, 350), -- VERTICAL TINGGI BANGET
-            math.random(-30, 30)
+            math.random(-40, 40),
+            math.random(300, 450), -- EXTRA TINGGI
+            math.random(-40, 40)
         )
         
-        -- Puterin biar pusing
+        -- Spin madness
         targetRoot.RotVelocity = Vector3.new(
-            math.random(-30, 30),
-            math.random(-30, 30),
-            math.random(-30, 30)
+            math.random(-40, 40),
+            math.random(-40, 40),
+            math.random(-40, 40)
         )
         
-        -- Stun humanoid
+        -- Stun effect
         if humanoid then
             humanoid.PlatformStand = true
-            task.delay(3, function() 
+            humanoid.WalkSpeed = 0
+            task.delay(4, function() 
                 if humanoid then 
                     humanoid.PlatformStand = false 
+                    humanoid.WalkSpeed = 16
                 end 
             end)
         end
         
-        -- Explosion effect
-        local exp = Instance.new("Explosion")
-        exp.Position = targetRoot.Position
-        exp.BlastPressure = 1000
-        exp.BlastRadius = 20
-        exp.Parent = workspace
+        -- MikaaDev explosion
+        for i = 1, 3 do
+            local exp = Instance.new("Explosion")
+            exp.Position = targetRoot.Position + Vector3.new(math.random(-10,10), math.random(0,20), math.random(-10,10))
+            exp.BlastPressure = 500
+            exp.BlastRadius = 15
+            exp.Parent = workspace
+            task.wait(0.1)
+        end
         
-        print("[LAUNCH] " .. targetPlayer.Name .. " DILAUNCH KE LANGIT!")
+        print("[MIKAADEV] LAUNCHED " .. targetPlayer.Name .. " TO SPACE! 🚀")
     end
 end
 
--- ========== RUSH ROUTINE ==========
-local function chaosRoutine()
+-- ========== MIKAADEV CHAOS ROUTINE ==========
+local function mikaaChaosRoutine()
     while chaosEnabled and currentTarget do
-        task.wait(0.5) -- Delay biar nggak terlalu spam
+        task.wait(0.6)
         
-        -- TELEPORT DULU sebelum rush (optional)
+        -- Teleport dulu kalo enabled
         if teleportBeforeRush then
-            teleportToTarget(currentTarget)
-            task.wait(0.2)
+            mikaaTeleport(currentTarget)
+            task.wait(0.3)
         end
         
-        -- LAUNCH PLAYER
-        launchPlayer(currentTarget)
+        -- LAUNCH!
+        mikaaLaunch(currentTarget)
         
-        -- Boat chase effect
+        -- Chase setelah launch
         if chaosBoat and currentTarget.Character then
             local targetRoot = currentTarget.Character:FindFirstChild("HumanoidRootPart")
             if targetRoot then
-                -- Chase player setelah dia jatuh
                 local direction = (targetRoot.Position - chaosBoat.Position).Unit
-                chaosBoat.BodyVelocity.Velocity = direction * 100 + Vector3.new(0, 10, 0)
+                chaosBoat.MikaaVelocity.Velocity = direction * 120 + Vector3.new(0, 15, 0)
                 
-                -- Boat rotation effect
+                -- Cool rotation
                 chaosBoat.CFrame = chaosBoat.CFrame * CFrame.fromEulerAnglesXYZ(
-                    0,
-                    math.rad(10),
-                    0
+                    math.rad(5),
+                    math.rad(15),
+                    math.rad(5)
                 )
             end
         end
         
-        task.wait(1.5) -- Delay antar rush
+        task.wait(1.8) -- Delay
     end
 end
 
--- ========== MOBILE GUI ==========
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "OBLIVION_CONTROL"
-screenGui.Parent = player:WaitForChild("PlayerGui")
+-- ========== MIKAADEV MOBILE GUI ==========
+local mikaaGui = Instance.new("ScreenGui")
+mikaaGui.Name = "MIKAADEV_CONTROL_PANEL"
+mikaaGui.Parent = player:WaitForChild("PlayerGui")
 
--- Main frame
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0.85, 0, 0.7, 0)
-mainFrame.Position = UDim2.new(0.075, 0, 0.15, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-mainFrame.BackgroundTransparency = 0.1
-mainFrame.Parent = screenGui
+-- Main panel
+local mainPanel = Instance.new("Frame")
+mainPanel.Name = "MikaaMainPanel"
+mainPanel.Size = UDim2.new(0.9, 0, 0.75, 0)
+mainPanel.Position = UDim2.new(0.05, 0, 0.12, 0)
+mainPanel.BackgroundColor3 = Color3.fromRGB(20, 10, 0)
+mainPanel.BackgroundTransparency = 0.15
+mainPanel.Parent = mikaaGui
 
--- Title
-local title = Instance.new("TextLabel")
-title.Text = "💀 OBLIVION BOAT CHAOS 💀"
-title.Size = UDim2.new(1, 0, 0.12, 0)
-title.TextColor3 = Color3.fromRGB(255, 50, 50)
-title.Font = Enum.Font.GothamBlack
-title.TextScaled = true
-title.Parent = mainFrame
+-- Header dengan nama MikaaDev
+local header = Instance.new("TextLabel")
+header.Name = "MikaaHeader"
+header.Text = "🔥 MIKAADEV CHAOS CONTROL 🔥"
+header.Size = UDim2.new(1, 0, 0.15, 0)
+header.TextColor3 = Color3.fromRGB(255, 150, 0)
+header.Font = Enum.Font.GothamBlack
+header.TextScaled = true
+header.BackgroundTransparency = 1
+header.Parent = mainPanel
+
+-- Subtitle
+local subtitle = Instance.new("TextLabel")
+subtitle.Name = "MikaaSubtitle"
+subtitle.Text = "Teleport | Launch | Destroy | Version " .. OWNER_VERSION
+subtitle.Size = UDim2.new(1, 0, 0.08, 0)
+subtitle.Position = UDim2.new(0, 0, 0.15, 0)
+subtitle.TextColor3 = Color3.fromRGB(200, 200, 0)
+subtitle.Font = Enum.Font.Gotham
+subtitle.TextScaled = true
+subtitle.BackgroundTransparency = 1
+subtitle.Parent = mainPanel
 
 -- Player list
-local playerFrame = Instance.new("ScrollingFrame")
-playerFrame.Size = UDim2.new(0.9, 0, 0.45, 0)
-playerFrame.Position = UDim2.new(0.05, 0, 0.15, 0)
-playerFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-playerFrame.Parent = mainFrame
+local playerList = Instance.new("ScrollingFrame")
+playerList.Name = "MikaaPlayerList"
+playerList.Size = UDim2.new(0.9, 0, 0.4, 0)
+playerList.Position = UDim2.new(0.05, 0, 0.25, 0)
+playerList.BackgroundColor3 = Color3.fromRGB(30, 20, 10)
+playerList.Parent = mainPanel
 
-local function updatePlayerList()
-    playerFrame:ClearAllChildren()
+local function updateMikaaList()
+    playerList:ClearAllChildren()
     
-    local yPos = 0
+    local yOffset = 0
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= player then
-            local btn = Instance.new("TextButton")
-            btn.Text = "🎯 " .. plr.Name
-            btn.Size = UDim2.new(0.9, 0, 0, 40)
-            btn.Position = UDim2.new(0.05, 0, 0, yPos)
-            btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-            btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            btn.Font = Enum.Font.Gotham
-            btn.TextScaled = true
+            local playerBtn = Instance.new("TextButton")
+            playerBtn.Name = "Btn_" .. plr.Name
+            playerBtn.Text = "🎯 " .. plr.Name .. " [TARGET]"
+            playerBtn.Size = UDim2.new(0.9, 0, 0, 45)
+            playerBtn.Position = UDim2.new(0.05, 0, 0, yOffset)
+            playerBtn.BackgroundColor3 = Color3.fromRGB(60, 40, 20)
+            playerBtn.TextColor3 = Color3.fromRGB(255, 200, 100)
+            playerBtn.Font = Enum.Font.GothamBold
+            playerBtn.TextScaled = true
             
-            btn.MouseButton1Click:Connect(function()
+            playerBtn.MouseButton1Click:Connect(function()
                 currentTarget = plr
-                -- Auto teleport ke target
-                teleportToTarget(plr)
+                print("[MIKAADEV] Target selected: " .. plr.Name)
             end)
             
-            btn.Parent = playerFrame
-            yPos = yPos + 45
+            playerBtn.Parent = playerList
+            yOffset = yOffset + 50
         end
     end
-    playerFrame.CanvasSize = UDim2.new(0, 0, 0, yPos)
+    playerList.CanvasSize = UDim2.new(0, 0, 0, yOffset)
 end
 
--- Teleport button
-local teleportBtn = Instance.new("TextButton")
-teleportBtn.Text = "🚀 TELEPORT TO TARGET"
-teleportBtn.Size = UDim2.new(0.8, 0, 0.09, 0)
-teleportBtn.Position = UDim2.new(0.1, 0, 0.62, 0)
-teleportBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
-teleportBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-teleportBtn.Font = Enum.Font.GothamBold
-teleportBtn.TextScaled = true
-teleportBtn.Parent = mainFrame
-
-teleportBtn.MouseButton1Click:Connect(function()
-    if currentTarget then
-        if teleportToTarget(currentTarget) then
-            teleportBtn.Text = "✅ TELEPORTED!"
-            task.wait(1)
-            teleportBtn.Text = "🚀 TELEPORT TO TARGET"
+-- Control buttons
+local buttons = {
+    {name = "TELEPORT_BTN", text = "🚀 TELEPORT TO TARGET", pos = 0.67, color = Color3.fromRGB(0, 100, 255), func = function()
+        if currentTarget then
+            mikaaTeleport(currentTarget)
         end
-    end
-end)
-
--- Rush toggle
-local rushBtn = Instance.new("TextButton")
-rushBtn.Text = "⚡ RUSH: OFF"
-rushBtn.Size = UDim2.new(0.8, 0, 0.09, 0)
-rushBtn.Position = UDim2.new(0.1, 0, 0.72, 0)
-rushBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-rushBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-rushBtn.Font = Enum.Font.GothamBold
-rushBtn.TextScaled = true
-rushBtn.Parent = mainFrame
-
-rushBtn.MouseButton1Click:Connect(function()
-    chaosEnabled = not chaosEnabled
+    end},
     
-    if chaosEnabled then
-        rushBtn.Text = "🔥 RUSH: ON"
-        rushBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-        
-        -- Pastikan boat ada
-        if not chaosBoat then
-            chaosBoat = createUltimateBoat()
-            chaosBoat.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -3, -15)
+    {name = "RUSH_BTN", text = "⚡ AUTO RUSH: OFF", pos = 0.77, color = Color3.fromRGB(255, 50, 50), func = function()
+        chaosEnabled = not chaosEnabled
+        local btn = mainPanel:FindFirstChild("RUSH_BTN")
+        if btn then
+            if chaosEnabled then
+                btn.Text = "🔥 AUTO RUSH: ON"
+                btn.BackgroundColor3 = Color3.fromRGB(50, 255, 50)
+                
+                if not chaosBoat then
+                    chaosBoat = createMikaaBoat()
+                    chaosBoat.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -3, -20)
+                end
+                
+                task.spawn(mikaaChaosRoutine)
+            else
+                btn.Text = "⚡ AUTO RUSH: OFF"
+                btn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+            end
         end
-        
-        -- Start chaos
-        task.spawn(chaosRoutine)
-    else
-        rushBtn.Text = "⚡ RUSH: OFF"
-        rushBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    end
-end)
+    end},
+    
+    {name = "BOAT_BTN", text = "🚤 CREATE BOAT", pos = 0.87, color = Color3.fromRGB(150, 0, 200), func = function()
+        if chaosBoat then chaosBoat:Destroy() end
+        chaosBoat = createMikaaBoat()
+        chaosBoat.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -3, -20)
+        print("[MIKAADEV] Chaos boat deployed!")
+    end}
+}
 
--- Spawn boat button
-local spawnBtn = Instance.new("TextButton")
-spawnBtn.Text = "🚤 SPAWN BOAT"
-spawnBtn.Size = UDim2.new(0.8, 0, 0.09, 0)
-spawnBtn.Position = UDim2.new(0.1, 0, 0.82, 0)
-spawnBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 255)
-spawnBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-spawnBtn.Font = Enum.Font.GothamBold
-spawnBtn.TextScaled = true
-spawnBtn.Parent = mainFrame
+for _, btnData in ipairs(buttons) do
+    local btn = Instance.new("TextButton")
+    btn.Name = btnData.name
+    btn.Text = btnData.text
+    btn.Size = UDim2.new(0.8, 0, 0.08, 0)
+    btn.Position = UDim2.new(0.1, 0, btnData.pos, 0)
+    btn.BackgroundColor3 = btnData.color
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextScaled = true
+    btn.Parent = mainPanel
+    
+    btn.MouseButton1Click:Connect(btnData.func)
+end
 
-spawnBtn.MouseButton1Click:Connect(function()
-    if chaosBoat then chaosBoat:Destroy() end
-    chaosBoat = createUltimateBoat()
-    chaosBoat.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -3, -15)
-    spawnBtn.Text = "✅ BOAT SPAWNED!"
-    task.wait(1)
-    spawnBtn.Text = "🚤 SPAWN BOAT"
-end)
-
--- Auto update list
+-- Auto refresh
 coroutine.wrap(function()
     while true do
-        updatePlayerList()
-        task.wait(3)
+        updateMikaaList()
+        task.wait(4)
     end
 end)()
 
-print("[OBLIVION] System Ready! Target, Teleport, then RUSH!")
+print("[MIKAADEV] Control panel loaded successfully!")
+print("[MIKAADEV] Ready to cause chaos! Select target and press buttons!")

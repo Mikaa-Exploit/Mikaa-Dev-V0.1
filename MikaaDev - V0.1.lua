@@ -1,359 +1,308 @@
 -- ============================================
--- [ MIKAADEV TELEPORT & LAUNCH FIX v4.0 ]
--- HANYA TELEPORT + LAUNCH, NO UI RIBET
+-- [ MIKAADEV FISH IT! DESTROYER PACK v1.0 ]
+-- Target: Fish It! by Fish Atelier
+-- Executor: Delta (Android)
+-- Objective: Delete all fishing rods + Chaos
 -- ============================================
 
 repeat task.wait() until game:IsLoaded()
+print("[MIKAADEV] Fish It! Nuclear Exploit Activated!")
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local HttpService = game:GetService("HttpService")
 
--- SIMPLE CONFIG
-local currentTarget = nil
-local chaosBoat = nil
+-- GENERATE RANDOM ID UNTUK BYPASS DETECTION
+local exploitID = "MIKAADEV_" .. HttpService:GenerateGUID(false):sub(1, 8)
+print("[EXPLOIT ID]", exploitID)
 
-print("========================================")
-print("MIKAADEV FISHING LAUNCHER v4.0")
-print("Simple: Teleport → Launch")
-print("========================================")
-
--- ========== SIMPLE BOAT ==========
-local function createSimpleBoat()
-    if chaosBoat then chaosBoat:Destroy() end
+-- ========== PHASE 1: RECONNAISSANCE ==========
+local function analyzeGame()
+    print("[PHASE 1] Analyzing Fish It! structure...")
     
-    local boat = Instance.new("Part")
-    boat.Name = "MIKAADEV_BOAT"
-    boat.Size = Vector3.new(8, 2, 15)
-    boat.Material = Enum.Material.Neon
-    boat.Color = Color3.fromRGB(255, 0, 0)
-    boat.Anchored = false
-    boat.CanCollide = true
-    boat.Transparency = 0.3
-    boat.Parent = workspace
+    -- Cari fishing-related objects
+    local fishingRemotes = {}
+    local fishingTools = {}
     
-    -- Simple seat
-    local seat = Instance.new("Seat")
-    seat.Size = Vector3.new(3, 1.5, 3)
-    seat.CFrame = boat.CFrame * CFrame.new(0, 1.5, -4)
-    seat.Parent = boat
-    
-    -- Simple velocity
-    local bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.MaxForce = Vector3.new(50000, 50000, 50000)
-    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
-    bodyVelocity.Parent = boat
-    
-    -- Keep boat floating
-    local bodyForce = Instance.new("BodyForce")
-    bodyForce.Force = Vector3.new(0, boat:GetMass() * workspace.Gravity * 1.3, 0)
-    bodyForce.Parent = boat
-    
-    print("[MIKAADEV] Boat created!")
-    return boat
-end
-
--- ========== TELEPORT TO FISHERMAN ==========
-local function teleportToFisherman(targetPlayer)
-    if not targetPlayer or not targetPlayer.Character then
-        print("[ERROR] Target not found!")
-        return false
-    end
-    
-    if not chaosBoat then
-        print("[ERROR] Create boat first!")
-        return false
-    end
-    
-    local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if not targetRoot then
-        print("[ERROR] Target root not found!")
-        return false
-    end
-    
-    -- TELEPORT BOAT DI ATAS TARGET
-    chaosBoat.CFrame = targetRoot.CFrame * CFrame.new(0, 20, 0)
-    
-    -- Effect
-    local exp = Instance.new("Explosion")
-    exp.Position = targetRoot.Position
-    exp.BlastPressure = 100
-    exp.BlastRadius = 15
-    exp.Parent = workspace
-    
-    print("[SUCCESS] Teleported to " .. targetPlayer.Name)
-    return true
-end
-
--- ========== LAUNCH FISHERMAN HIGH ==========
-local function launchFisherman(targetPlayer)
-    if not targetPlayer or not targetPlayer.Character then
-        print("[ERROR] Target not found for launch!")
-        return false
-    end
-    
-    local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-    local humanoid = targetPlayer.Character:FindFirstChild("Humanoid")
-    
-    if not targetRoot then
-        print("[ERROR] Cannot launch, no root part!")
-        return false
-    end
-    
-    -- STEP 1: BOAT DROP ON FISHERMAN
-    if chaosBoat then
-        -- Boat jatuh dari atas ke target
-        chaosBoat.CFrame = targetRoot.CFrame * CFrame.new(0, 25, 0)
-        task.wait(0.1)
-        
-        -- Force boat down
-        if chaosBoat:FindFirstChild("BodyVelocity") then
-            chaosBoat.BodyVelocity.Velocity = Vector3.new(0, -150, 0)
-        end
-        task.wait(0.2)
-    end
-    
-    -- STEP 2: LAUNCH TARGET HIGH
-    local launchPower = math.random(300, 400) -- HIGH POWER
-    targetRoot.Velocity = Vector3.new(
-        math.random(-15, 15),
-        launchPower,  -- VERTICAL LAUNCH
-        math.random(-15, 15)
-    )
-    
-    -- STEP 3: SPIN TARGET
-    targetRoot.RotVelocity = Vector3.new(
-        math.random(-20, 20),
-        math.random(-20, 20),
-        math.random(-20, 20)
-    )
-    
-    -- STEP 4: STUN TARGET
-    if humanoid then
-        humanoid.PlatformStand = true
-        humanoid.WalkSpeed = 0
-        
-        -- Remove fishing tools
-        for _, tool in pairs(targetPlayer.Character:GetChildren()) do
-            if tool:IsA("Tool") then
-                tool:Destroy()
-            end
+    for _, obj in pairs(game:GetDescendants()) do
+        -- Cari RemoteEvents fishing
+        if obj:IsA("RemoteEvent") and (
+            obj.Name:lower():find("fish") or 
+            obj.Name:lower():find("rod") or
+            obj.Name:lower():find("cast") or
+            obj.Name:lower():find("catch")
+        ) then
+            table.insert(fishingRemotes, obj)
+            print("[FOUND REMOTE]", obj:GetFullName())
         end
         
-        task.delay(4, function()
-            if humanoid then
-                humanoid.PlatformStand = false
-                humanoid.WalkSpeed = 16
+        -- Cari fishing tools
+        if obj:IsA("Tool") and (
+            obj.Name:lower():find("rod") or
+            obj.Name:lower():find("fish") or
+            obj.Name:lower():find("pole")
+        ) then
+            table.insert(fishingTools, obj)
+            print("[FOUND TOOL]", obj:GetFullName())
+        end
+    end
+    
+    return fishingRemotes, fishingTools
+end
+
+local remotes, tools = analyzeGame()
+
+-- ========== PHASE 2: REMOTE EVENT HIJACK ==========
+local function hijackFishingRemotes()
+    print("[PHASE 2] Hijacking fishing remotes...")
+    
+    for _, remote in pairs(remotes) do
+        coroutine.wrap(function()
+            pcall(function()
+                -- Kirim corrupt data ke server
+                for i = 1, 10 do
+                    remote:FireServer({
+                        Action = "CORRUPT_" .. exploitID,
+                        Player = player,
+                        Data = string.rep("X", 10000), -- Large data
+                        Timestamp = tick(),
+                        Fake = true
+                    })
+                    task.wait(0.05)
+                end
+                print("[HIJACKED]", remote.Name)
+            end)
+        end)()
+    end
+end
+
+-- ========== PHASE 3: FISHING ROD ANNIHILATION ==========
+local function deleteAllFishingRods()
+    print("[PHASE 3] Deleting ALL fishing rods...")
+    
+    -- METHOD 1: Direct destruction
+    for _, target in pairs(Players:GetPlayers()) do
+        if target ~= player and target.Character then
+            coroutine.wrap(function()
+                -- Destroy equipped rods
+                for _, tool in pairs(target.Character:GetChildren()) do
+                    if tool:IsA("Tool") then
+                        pcall(function() tool:Destroy() end)
+                        print("[DESTROYED ROD]", target.Name, tool.Name)
+                    end
+                end
+                
+                -- Destroy backpack rods
+                if target:FindFirstChild("Backpack") then
+                    for _, tool in pairs(target.Backpack:GetChildren()) do
+                        if tool:IsA("Tool") then
+                            pcall(function() tool:Destroy() end)
+                        end
+                    end
+                end
+            end)()
+        end
+    end
+    
+    -- METHOD 2: Workspace rod destruction
+    for _, tool in pairs(workspace:GetDescendants()) do
+        if tool:IsA("Tool") and (
+            tool.Name:lower():find("rod") or
+            tool.Name:lower():find("fish")
+        ) then
+            pcall(function() tool:Destroy() end)
+        end
+    end
+end
+
+-- ========== PHASE 4: FISHING INTERRUPTION ==========
+local function interruptAllFishing()
+    print("[PHASE 4] Interrupting active fishing...")
+    
+    for _, target in pairs(Players:GetPlayers()) do
+        if target ~= player and target.Character then
+            coroutine.wrap(function()
+                local humanoid = target.Character:FindFirstChild("Humanoid")
+                local root = target.Character:FindFirstChild("HumanoidRootPart")
+                
+                if humanoid and root then
+                    -- Interrupt technique 1: Force unequip
+                    pcall(function() humanoid:UnequipTools() end)
+                    
+                    -- Interrupt technique 2: Physics launch
+                    pcall(function()
+                        root.Velocity = Vector3.new(
+                            math.random(-50, 50),
+                            math.random(100, 250), -- Launch tinggi
+                            math.random(-50, 50)
+                        )
+                        root.RotVelocity = Vector3.new(
+                            math.random(-30, 30),
+                            math.random(-30, 30),
+                            math.random(-30, 30)
+                        )
+                    end)
+                    
+                    -- Interrupt technique 3: Fake catch notification
+                    game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
+                        Text = "[SYSTEM] " .. target.Name .. "'s fishing rod broke!",
+                        Color = Color3.fromRGB(255, 0, 0),
+                        Font = Enum.Font.SourceSansBold
+                    })
+                    
+                    print("[INTERRUPTED]", target.Name)
+                end
+            end)()
+        end
+    end
+end
+
+-- ========== PHASE 5: MEMORY OVERLOAD ==========
+local function overloadFishingSystem()
+    print("[PHASE 5] Overloading fishing system...")
+    
+    -- Create massive fake fishing data
+    for i = 1, 50 do
+        coroutine.wrap(function()
+            local fakeRod = Instance.new("Tool")
+            fakeRod.Name = "CorruptRod_" .. exploitID .. "_" .. i
+            fakeRod.Parent = workspace
+            
+            -- Add heavy data
+            for j = 1, 20 do
+                local val = Instance.new("StringValue")
+                val.Name = "FakeData_" .. j
+                val.Value = string.rep("CORRUPT", 1000)
+                val.Parent = fakeRod
             end
-        end)
+            
+            task.wait(0.1)
+            pcall(function() fakeRod:Destroy() end)
+        end)()
+    end
+end
+
+-- ========== PHASE 6: ANTI-REPLACEMENT ==========
+local function preventRodReplacement()
+    print("[PHASE 6] Preventing rod replacement...")
+    
+    -- Hook tool added event
+    local function onToolAdded(tool)
+        if tool:IsA("Tool") and (
+            tool.Name:lower():find("rod") or
+            tool.Name:lower():find("fish")
+        ) then
+            task.wait(0.1)
+            pcall(function() tool:Destroy() end)
+            print("[PREVENTED ROD]", tool.Name)
+        end
     end
     
-    -- STEP 5: EXPLOSION EFFECTS
-    for i = 1, 3 do
-        local exp = Instance.new("Explosion")
-        exp.Position = targetRoot.Position + Vector3.new(
-            math.random(-5, 5),
-            math.random(0, 10),
-            math.random(-5, 5)
-        )
-        exp.BlastPressure = 500
-        exp.BlastRadius = 12
-        exp.Parent = workspace
-        task.wait(0.1)
+    -- Monitor all players
+    for _, target in pairs(Players:GetPlayers()) do
+        if target ~= player then
+            if target.Character then
+                target.Character.ChildAdded:Connect(onToolAdded)
+            end
+            if target:FindFirstChild("Backpack") then
+                target.Backpack.ChildAdded:Connect(onToolAdded)
+            end
+        end
     end
+end
+
+-- ========== MAIN EXECUTION ==========
+print("[MIKAADEV] ================================")
+print("[MIKAADEV] FISH IT! NUCLEAR EXPLOIT")
+print("[MIKAADEV] Target: Fish Atelier Game")
+print("[MIKAADEV] Executor: Delta Android")
+print("[MIKAADEV] ================================")
+
+-- Execute semua phase
+coroutine.wrap(hijackFishingRemotes)()
+task.wait(0.5)
+
+coroutine.wrap(deleteAllFishingRods)()
+task.wait(0.5)
+
+coroutine.wrap(interruptAllFishing)()
+task.wait(0.5)
+
+coroutine.wrap(overloadFishingSystem)()
+task.wait(0.5)
+
+coroutine.wrap(preventRodReplacement)()
+
+-- ========== AUTO-REPEAT SYSTEM ==========
+local chaosMode = false
+
+local function toggleChaosMode()
+    chaosMode = not chaosMode
     
-    print("[LAUNCH] " .. targetPlayer.Name .. " LAUNCHED " .. launchPower .. " STUD HIGH!")
-    return true
+    if chaosMode then
+        print("[CHAOS MODE] ACTIVATED - Continuous disruption!")
+        
+        -- Continuous attack loop
+        while chaosMode do
+            deleteAllFishingRods()
+            interruptAllFishing()
+            task.wait(3) -- Attack setiap 3 detik
+        end
+    else
+        print("[CHAOS MODE] DEACTIVATED")
+    end
 end
 
 -- ========== SIMPLE GUI ==========
 local gui = Instance.new("ScreenGui")
-gui.Name = "MIKAADEV_SIMPLE"
+gui.Name = exploitID .. "_GUI"
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- Toggle button
-local toggle = Instance.new("TextButton")
-toggle.Text = "⛔"
-toggle.Size = UDim2.new(0, 45, 0, 45)
-toggle.Position = UDim2.new(0, 5, 0.5, 0)
-toggle.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggle.Font = Enum.Font.GothamBlack
-toggle.TextSize = 20
-toggle.Parent = gui
-
--- Main frame
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0.25, 0, 0.4, 0)
-frame.Position = UDim2.new(0, 55, 0.3, 0)
+frame.Size = UDim2.new(0.2, 0, 0.15, 0)
+frame.Position = UDim2.new(0.02, 0, 0.02, 0)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.BackgroundTransparency = 0.15
 frame.Parent = gui
 
--- Hide/show UI
-local uiVisible = true
-toggle.MouseButton1Click:Connect(function()
-    uiVisible = not uiVisible
-    frame.Visible = uiVisible
-    toggle.Text = uiVisible and "⛔" or "✅"
-end)
-
--- Title
 local title = Instance.new("TextLabel")
-title.Text = "MIKAADEV"
-title.Size = UDim2.new(1, 0, 0.15, 0)
-title.TextColor3 = Color3.fromRGB(255, 100, 0)
+title.Text = "🎣 MIKAADEV 🚤"
+title.Size = UDim2.new(1, 0, 0.4, 0)
+title.TextColor3 = Color3.fromRGB(255, 50, 50)
 title.Font = Enum.Font.GothamBlack
 title.TextScaled = true
 title.BackgroundTransparency = 1
 title.Parent = frame
 
--- Player list
-local list = Instance.new("ScrollingFrame")
-list.Size = UDim2.new(0.9, 0, 0.35, 0)
-list.Position = UDim2.new(0.05, 0, 0.2, 0)
-list.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-list.Parent = frame
+local chaosBtn = Instance.new("TextButton")
+chaosBtn.Text = "⚡ CHAOS: OFF"
+chaosBtn.Size = UDim2.new(0.9, 0, 0.4, 0)
+chaosBtn.Position = UDim2.new(0.05, 0, 0.5, 0)
+chaosBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+chaosBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+chaosBtn.Font = Enum.Font.GothamBold
+chaosBtn.TextScaled = true
+chaosBtn.Parent = frame
 
-local function updateList()
-    list:ClearAllChildren()
-    
-    local y = 0
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= player then
-            local btn = Instance.new("TextButton")
-            btn.Text = plr.Name
-            btn.Size = UDim2.new(0.9, 0, 0, 25)
-            btn.Position = UDim2.new(0.05, 0, 0, y)
-            btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-            btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            btn.Font = Enum.Font.Gotham
-            btn.TextScaled = true
-            
-            btn.MouseButton1Click:Connect(function()
-                currentTarget = plr
-                print("[TARGET] Selected: " .. plr.Name)
-            end)
-            
-            btn.Parent = list
-            y = y + 30
-        end
-    end
-    list.CanvasSize = UDim2.new(0, 0, 0, y)
-end
+chaosBtn.MouseButton1Click:Connect(function()
+    toggleChaosMode()
+    chaosBtn.Text = chaosMode and "🔥 CHAOS: ON" or "⚡ CHAOS: OFF"
+    chaosBtn.BackgroundColor3 = chaosMode and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+end)
 
--- Simple buttons
-local buttons = {
-    {text = "🚤 BOAT", func = function()
-        chaosBoat = createSimpleBoat()
-        if humanoidRootPart then
-            chaosBoat.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -2, -8)
-        end
-    end},
-    
-    {text = "🎣 TP & LAUNCH", func = function()
-        if not currentTarget then
-            print("[ERROR] Select target first!")
-            return
-        end
-        
-        if not chaosBoat then
-            print("[ERROR] Create boat first!")
-            return
-        end
-        
-        -- Teleport dulu
-        local teleportSuccess = teleportToFisherman(currentTarget)
-        if not teleportSuccess then return end
-        
-        task.wait(0.3)
-        
-        -- Launch setelah teleport
-        local launchSuccess = launchFisherman(currentTarget)
-        if launchSuccess then
-            print("[SUCCESS] Target launched successfully!")
-        end
-    end},
-    
-    {text = "⚡ AUTO RUSH", func = function(btn)
-        if not currentTarget then
-            print("[ERROR] Select target first!")
-            return
-        end
-        
-        if not chaosBoat then
-            print("[ERROR] Create boat first!")
-            return
-        end
-        
-        -- Auto loop
-        for i = 1, 5 do  -- 5x launch
-            teleportToFisherman(currentTarget)
-            task.wait(0.2)
-            launchFisherman(currentTarget)
-            task.wait(1.5)
-        end
-        
-        print("[COMPLETE] Auto rush finished!")
-    end}
-}
+print("[MIKAADEV] ================================")
+print("[MIKAADEV] CONTROLS:")
+print("[MIKAADEV] 1. Script auto-execute semua attack")
+print("[MIKAADEV] 2. Klik CHAOS button buat continuous mode")
+print("[MIKAADEV] 3. Fishing rods should be deleted")
+print("[MIKAADEV] 4. Players will be launched")
+print("[MIKAADEV] ================================")
+print("[MIKAADEV] EXPECTED RESULTS:")
+print("[MIKAADEV] - All fishing rods disappear")
+print("[MIKAADEV] - Players get launched randomly")
+print("[MIKAADEV] - Fishing interrupted permanently")
+print("[MIKAADEV] ================================")
 
-local yPos = 0.6
-for i, btnData in ipairs(buttons) do
-    local btn = Instance.new("TextButton")
-    btn.Text = btnData.text
-    btn.Size = UDim2.new(0.9, 0, 0.1, 0)
-    btn.Position = UDim2.new(0.05, 0, yPos, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextScaled = true
-    btn.Parent = frame
-    
-    if i == 3 then
-        btn.MouseButton1Click:Connect(function() btnData.func(btn) end)
-    else
-        btn.MouseButton1Click:Connect(btnData.func)
-    end
-    
-    yPos = yPos + 0.12
-end
-
--- Status
-local status = Instance.new("TextLabel")
-status.Text = "Status: Ready"
-status.Size = UDim2.new(1, 0, 0.1, 0)
-status.Position = UDim2.new(0, 0, 0.95, 0)
-status.TextColor3 = Color3.fromRGB(0, 255, 0)
-status.BackgroundTransparency = 1
-status.Font = Enum.Font.Gotham
-status.Parent = frame
-
--- Update status
-coroutine.wrap(function()
-    while gui.Parent do
-        local targetName = currentTarget and currentTarget.Name or "None"
-        local boatStatus = chaosBoat and "✅" or "❌"
-        status.Text = "Target: " .. targetName .. " | Boat: " .. boatStatus
-        task.wait(1)
-    end
-end)()
-
--- Auto update list
-coroutine.wrap(function()
-    while gui.Parent do
-        updateList()
-        task.wait(2)
-    end
-end)()
-
-print("[MIKAADEV] =================================")
-print("[MIKAADEV] SYSTEM LOADED!")
-print("[MIKAADEV] Instructions:")
-print("[MIKAADEV] 1. Select target from list")
-print("[MIKAADEV] 2. Click BOAT button")
-print("[MIKAADEV] 3. Click TP & LAUNCH button")
-print("[MIKAADEV] =================================")
-print("[MIKAADEV] UI Toggle: Click ⛔ button")
-print("[MIKAADEV] =================================")
+-- Auto-cleanup notification
+task.wait(10)
+print("[MIKAADEV] Status: Exploit running...")
+print("[MIKAADEV] Monitor chat for 'fishing rod broke' messages!")

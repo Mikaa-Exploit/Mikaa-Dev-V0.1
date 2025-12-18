@@ -105,8 +105,8 @@ local DamageActive = false
 local ActiveConnection = nil
 
 -- DAMAGE YANG PASTI TERASA
-local DAMAGE_FORCE = 350      -- Damage langsung (PASTI TERASA)
-local DAMAGE_MULTIPLIER = 25  -- 25x multiplier (EXTREME)
+local DAMAGE_FORCE = 100      -- Damage langsung (PASTI TERASA)
+local DAMAGE_MULTIPLIER = 10  -- 25x multiplier (EXTREME)
 
 -- ============================================
 -- DIRECT DAMAGE METHOD (PASTI KENA)

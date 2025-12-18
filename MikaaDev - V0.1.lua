@@ -1,200 +1,196 @@
--- MikaaDev Delta Executor v3
+-- =================================
+-- MIKAADEV DELTA EXECUTOR - FINAL
+-- =================================
+-- Owner: MikaaDev
 -- TestingDevByMikaa
--- Each feature has individual ON/OFF button
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local UserInputService = game:GetService("UserInputService")
 
--- ========== MIKAADEV UI ==========
-local MikaaDevUI = {}
-MikaaDevUI.ToggleKey = Enum.KeyCode.RightShift
-
-function MikaaDevUI:Create()
-    local CoreGui = game:GetService("CoreGui")
-    
-    -- Hapus UI lama
-    if CoreGui:FindFirstChild("MikaaDevUI") then
-        CoreGui:FindFirstChild("MikaaDevUI"):Destroy()
+-- Hapus UI lama
+for _, v in pairs(game:GetService("CoreGui"):GetChildren()) do
+    if v.Name == "MikaaDevUI" then
+        v:Destroy()
     end
-    
-    -- ScreenGui
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "MikaaDevUI"
-    ScreenGui.Parent = CoreGui
-    
-    -- Main Window
-    local Main = Instance.new("Frame")
-    Main.Name = "Main"
-    Main.Size = UDim2.new(0, 300, 0, 350)
-    Main.Position = UDim2.new(0.5, -150, 0.5, -175)
-    Main.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-    Main.BorderColor3 = Color3.fromRGB(0, 100, 255)
-    Main.BorderSizePixel = 2
-    Main.Active = true
-    Main.Draggable = true
-    Main.Parent = ScreenGui
-    
-    -- Header
-    local Header = Instance.new("Frame")
-    Header.Size = UDim2.new(1, 0, 0, 40)
-    Header.BackgroundColor3 = Color3.fromRGB(0, 80, 200)
-    Header.Parent = Main
-    
-    -- Logo
-    local Logo = Instance.new("ImageLabel")
-    Logo.Size = UDim2.new(0, 30, 0, 30)
-    Logo.Position = UDim2.new(0, 5, 0, 5)
-    Logo.BackgroundTransparency = 1
-    Logo.Image = "rbxassetid://100166477433523"
-    Logo.Parent = Header
-    
-    -- Title
-    local Title = Instance.new("TextLabel")
-    Title.Text = "MikaaDev Delta"
-    Title.Size = UDim2.new(1, -40, 1, 0)
-    Title.Position = UDim2.new(0, 40, 0, 0)
-    Title.BackgroundTransparency = 1
-    Title.TextColor3 = Color3.white
-    Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 16
-    Title.TextXAlignment = Enum.TextXAlignment.Left
-    Title.Parent = Header
-    
-    -- Subtitle
-    local Subtitle = Instance.new("TextLabel")
-    Subtitle.Text = "TestingDevByMikaa"
-    Subtitle.Size = UDim2.new(1, 0, 0, 15)
-    Subtitle.Position = UDim2.new(0, 0, 0, 40)
-    Subtitle.BackgroundTransparency = 1
-    Subtitle.TextColor3 = Color3.fromRGB(150, 200, 255)
-    Subtitle.Font = Enum.Font.Code
-    Subtitle.TextSize = 10
-    Subtitle.Parent = Main
-    
-    -- Close Button
-    local CloseBtn = Instance.new("TextButton")
-    CloseBtn.Text = "X"
-    CloseBtn.Size = UDim2.new(0, 25, 0, 25)
-    CloseBtn.Position = UDim2.new(1, -30, 0, 8)
-    CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-    CloseBtn.TextColor3 = Color3.white
-    CloseBtn.Font = Enum.Font.GothamBold
-    CloseBtn.MouseButton1Click:Connect(function()
-        ScreenGui:Destroy()
-    end)
-    CloseBtn.Parent = Header
-    
-    -- Features Container
-    local Features = Instance.new("ScrollingFrame")
-    Features.Size = UDim2.new(1, -10, 1, -70)
-    Features.Position = UDim2.new(0, 5, 0, 60)
-    Features.BackgroundTransparency = 1
-    Features.ScrollBarThickness = 4
-    Features.ScrollBarImageColor3 = Color3.fromRGB(0, 100, 255)
-    Features.CanvasSize = UDim2.new(0, 0, 0, 400)
-    Features.Parent = Main
-    
-    local UIListLayout = Instance.new("UIListLayout")
-    UIListLayout.Padding = UDim.new(0, 8)
-    UIListLayout.Parent = Features
-    
-    MikaaDevUI.Main = Features
-    MikaaDevUI.ScreenGui = ScreenGui
-    
-    return Features
 end
 
-function MikaaDevUI:AddFeature(name, buttonText, callback)
-    local FeatureFrame = Instance.new("Frame")
-    FeatureFrame.Size = UDim2.new(1, 0, 0, 50)
-    FeatureFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
-    FeatureFrame.BorderSizePixel = 0
+-- Variabel
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+
+-- Status Fitur
+local Features = {
+    Coin = {Enabled = false, Value = 9999},
+    Damage = {Enabled = false, Multiplier = 10},
+    Health = {Enabled = false, Bonus = 500}
+}
+
+-- ========== UI UTAMA ==========
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "MikaaDevUI"
+ScreenGui.Parent = game.CoreGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "Main"
+MainFrame.Size = UDim2.new(0, 280, 0, 350)
+MainFrame.Position = UDim2.new(0, 10, 0, 100)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
+MainFrame.BorderColor3 = Color3.fromRGB(0, 100, 255)
+MainFrame.BorderSizePixel = 2
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+-- Header
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, 40)
+Header.BackgroundColor3 = Color3.fromRGB(0, 80, 200)
+Header.Parent = MainFrame
+
+-- Logo
+local Logo = Instance.new("ImageLabel")
+Logo.Size = UDim2.new(0, 30, 0, 30)
+Logo.Position = UDim2.new(0, 5, 0, 5)
+Logo.BackgroundTransparency = 1
+Logo.Image = "rbxassetid://100166477433523"
+Logo.Parent = Header
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Text = "MikaaDev Delta"
+Title.Size = UDim2.new(1, -40, 1, 0)
+Title.Position = UDim2.new(0, 40, 0, 0)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Header
+
+-- Subtitle
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Text = "TestingDevByMikaa"
+Subtitle.Size = UDim2.new(1, 0, 0, 20)
+Subtitle.Position = UDim2.new(0, 0, 0, 40)
+Subtitle.BackgroundTransparency = 1
+Subtitle.TextColor3 = Color3.fromRGB(150, 200, 255)
+Subtitle.Font = Enum.Font.Code
+Subtitle.TextSize = 10
+Subtitle.Parent = MainFrame
+
+-- Tombol Minimize
+local MinBtn = Instance.new("TextButton")
+MinBtn.Text = "_"
+MinBtn.Size = UDim2.new(0, 25, 0, 25)
+MinBtn.Position = UDim2.new(1, -60, 0, 8)
+MinBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+MinBtn.TextColor3 = Color3.new(1, 1, 1)
+MinBtn.Font = Enum.Font.GothamBold
+MinBtn.TextSize = 18
+MinBtn.Parent = Header
+
+-- Tombol Close
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Text = "X"
+CloseBtn.Size = UDim2.new(0, 25, 0, 25)
+CloseBtn.Position = UDim2.new(1, -30, 0, 8)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+CloseBtn.TextColor3 = Color3.new(1, 1, 1)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Parent = Header
+
+-- Container Fitur
+local FeaturesFrame = Instance.new("ScrollingFrame")
+FeaturesFrame.Size = UDim2.new(1, -10, 1, -70)
+FeaturesFrame.Position = UDim2.new(0, 5, 0, 65)
+FeaturesFrame.BackgroundTransparency = 1
+FeaturesFrame.ScrollBarThickness = 4
+FeaturesFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 100, 255)
+FeaturesFrame.CanvasSize = UDim2.new(0, 0, 0, 250)
+FeaturesFrame.Parent = MainFrame
+
+local Layout = Instance.new("UIListLayout")
+Layout.Padding = UDim.new(0, 8)
+Layout.Parent = FeaturesFrame
+
+-- ========== FUNGSI BUAT FITUR ==========
+local function CreateFeature(name, desc)
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(1, 0, 0, 60)
+    Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+    Frame.BorderSizePixel = 0
     
-    -- Feature Name
+    -- Nama Fitur
     local NameLabel = Instance.new("TextLabel")
     NameLabel.Text = name
-    NameLabel.Size = UDim2.new(0.6, 0, 1, 0)
-    NameLabel.Position = UDim2.new(0, 5, 0, 0)
+    NameLabel.Size = UDim2.new(0.7, 0, 0, 25)
+    NameLabel.Position = UDim2.new(0, 10, 0, 5)
     NameLabel.BackgroundTransparency = 1
-    NameLabel.TextColor3 = Color3.fromRGB(200, 230, 255)
+    NameLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
     NameLabel.Font = Enum.Font.Gotham
     NameLabel.TextSize = 14
     NameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    NameLabel.Parent = FeatureFrame
+    NameLabel.Parent = Frame
     
-    -- ON/OFF Button
+    -- Deskripsi
+    local DescLabel = Instance.new("TextLabel")
+    DescLabel.Text = desc
+    DescLabel.Size = UDim2.new(0.7, 0, 0, 20)
+    DescLabel.Position = UDim2.new(0, 10, 0, 30)
+    DescLabel.BackgroundTransparency = 1
+    DescLabel.TextColor3 = Color3.fromRGB(150, 180, 220)
+    DescLabel.Font = Enum.Font.Code
+    DescLabel.TextSize = 10
+    DescLabel.TextXAlignment = Enum.TextXAlignment.Left
+    DescLabel.Parent = Frame
+    
+    -- Tombol ON/OFF
     local ToggleBtn = Instance.new("TextButton")
-    ToggleBtn.Name = "ToggleBtn"
-    ToggleBtn.Text = buttonText or "OFF"
-    ToggleBtn.Size = UDim2.new(0.35, -10, 0, 30)
-    ToggleBtn.Position = UDim2.new(0.65, 0, 0.5, -15)
-    ToggleBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0) -- RED = OFF
-    ToggleBtn.TextColor3 = Color3.white
+    ToggleBtn.Name = "Toggle"
+    ToggleBtn.Text = "OFF"
+    ToggleBtn.Size = UDim2.new(0.25, 0, 0, 30)
+    ToggleBtn.Position = UDim2.new(0.75, -5, 0.5, -15)
+    ToggleBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+    ToggleBtn.TextColor3 = Color3.new(1, 1, 1)
     ToggleBtn.Font = Enum.Font.GothamBold
     ToggleBtn.TextSize = 12
+    ToggleBtn.Parent = Frame
     
-    local isActive = false
-    
-    ToggleBtn.MouseButton1Click:Connect(function()
-        isActive = not isActive
-        
-        if isActive then
-            ToggleBtn.Text = "ON"
-            ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- GREEN = ON
-        else
-            ToggleBtn.Text = "OFF"
-            ToggleBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0) -- RED = OFF
-        end
-        
-        -- Execute callback
-        if callback then
-            callback(isActive)
-        end
-    end)
-    
-    ToggleBtn.Parent = FeatureFrame
-    FeatureFrame.Parent = MikaaDevUI.Main
-    
-    return FeatureFrame
+    Frame.Parent = FeaturesFrame
+    return Frame, ToggleBtn
 end
 
--- ========== HACK FUNCTIONS ==========
-local Hacks = {
-    Coin = {Active = false, Value = 9999},
-    Damage = {Active = false, Multiplier = 10},
-    Health = {Active = false, Bonus = 500}
-}
-
--- COIN HACK FUNCTION
-local function CoinHack(enable)
-    Hacks.Coin.Active = enable
+-- ========== FITUR COIN ==========
+local CoinFrame, CoinBtn = CreateFeature("COIN", "Set coin to 9999")
+CoinBtn.MouseButton1Click:Connect(function()
+    Features.Coin.Enabled = not Features.Coin.Enabled
     
-    if enable then
+    if Features.Coin.Enabled then
+        CoinBtn.Text = "ON"
+        CoinBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        
+        -- Eksekusi coin hack
         spawn(function()
-            while Hacks.Coin.Active do
-                -- Method 1: Direct value modification
-                local playerData = LocalPlayer:FindFirstChild("leaderstats") or 
-                                  LocalPlayer:FindFirstChild("Data") or
-                                  LocalPlayer:FindFirstChild("Stats")
+            while Features.Coin.Enabled do
+                -- Cari nilai coin di player
+                local stats = LocalPlayer:FindFirstChild("leaderstats") or 
+                             LocalPlayer:FindFirstChild("Stats") or
+                             LocalPlayer:FindFirstChild("Data")
                 
-                if playerData then
-                    local coins = playerData:FindFirstChild("Coins") or 
-                                 playerData:FindFirstChild("Money") or
-                                 playerData:FindFirstChild("Coin")
-                    
-                    if coins and coins:IsA("IntValue") or coins:IsA("NumberValue") then
-                        coins.Value = Hacks.Coin.Value
+                if stats then
+                    for _, child in pairs(stats:GetChildren()) do
+                        if child.Name:lower():find("coin") or 
+                           child.Name:lower():find("uang") or 
+                           child.Name:lower():find("money") then
+                            if child:IsA("IntValue") or child:IsA("NumberValue") then
+                                child.Value = Features.Coin.Value
+                            end
+                        end
                     end
                 end
                 
-                -- Method 2: Try to find coins in workspace
+                -- Auto collect coin di map
                 for _, obj in pairs(workspace:GetDescendants()) do
-                    if (obj.Name:lower():find("coin") or 
-                        obj.Name:lower():find("uang") or 
-                        obj.Name:lower():find("money")) and 
-                       obj:IsA("Part") then
-                        
+                    if obj.Name:lower():find("coin") and obj:IsA("Part") then
                         if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                             firetouchinterest(LocalPlayer.Character.HumanoidRootPart, obj, 0)
                             firetouchinterest(LocalPlayer.Character.HumanoidRootPart, obj, 1)
@@ -202,33 +198,36 @@ local function CoinHack(enable)
                     end
                 end
                 
-                wait(0.3)
+                wait(0.5)
             end
         end)
+    else
+        CoinBtn.Text = "OFF"
+        CoinBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
     end
-end
+end)
 
--- DAMAGE HACK FUNCTION
-local function DamageHack(enable)
-    Hacks.Damage.Active = enable
+-- ========== FITUR DAMAGE ==========
+local DamageFrame, DamageBtn = CreateFeature("DAMAGE", "Katana damage x10")
+DamageBtn.MouseButton1Click:Connect(function()
+    Features.Damage.Enabled = not Features.Damage.Enabled
     
-    if enable then
-        -- Hook untuk meningkatkan damage
+    if Features.Damage.Enabled then
+        DamageBtn.Text = "ON"
+        DamageBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        
+        -- Hook damage function
         local oldNamecall
         oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
             local method = getnamecallmethod()
             local args = {...}
             
-            -- Tangkap fungsi damage
             if method == "FireServer" or method == "InvokeServer" then
-                if tostring(self):find("Damage") or 
-                   tostring(self):find("Hit") or 
-                   tostring(self):find("Attack") then
-                    
-                    -- Multiply damage value
-                    for i, arg in pairs(args) do
-                        if typeof(arg) == "number" and arg > 0 and arg < 1000 then
-                            args[i] = arg * Hacks.Damage.Multiplier
+                local name = tostring(self):lower()
+                if name:find("damage") or name:find("hit") or name:find("attack") then
+                    for i, v in ipairs(args) do
+                        if type(v) == "number" and v > 0 and v < 1000 then
+                            args[i] = v * Features.Damage.Multiplier
                         end
                     end
                 end
@@ -236,50 +235,31 @@ local function DamageHack(enable)
             
             return oldNamecall(self, unpack(args))
         end)
-        
-        -- Juga modifikasi tool damage
-        if LocalPlayer.Character then
-            for _, tool in pairs(LocalPlayer.Character:GetChildren()) do
-                if tool:IsA("Tool") then
-                    local script = tool:FindFirstChildOfClass("Script")
-                    if script then
-                        -- Backup original source
-                        if not script:FindFirstChild("OriginalSource") then
-                            local backup = Instance.new("StringValue")
-                            backup.Name = "OriginalSource"
-                            backup.Value = script.Source
-                            backup.Parent = script
-                        end
-                        
-                        -- Modify damage values
-                        local source = script.Source
-                        source = source:gsub("damage%s*=%s*%d+", "damage = " .. tostring(50 * Hacks.Damage.Multiplier))
-                        source = source:gsub("Damage%s*=%s*%d+", "Damage = " .. tostring(50 * Hacks.Damage.Multiplier))
-                        script.Source = source
-                    end
-                end
-            end
-        end
+    else
+        DamageBtn.Text = "OFF"
+        DamageBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
     end
-end
+end)
 
--- HEALTH HACK FUNCTION
-local function HealthHack(enable)
-    Hacks.Health.Active = enable
+-- ========== FITUR HEALTH ==========
+local HealthFrame, HealthBtn = CreateFeature("HEALTH", "+500 HP Bonus")
+HealthBtn.MouseButton1Click:Connect(function()
+    Features.Health.Enabled = not Features.Health.Enabled
     
-    if enable then
-        local function ApplyHealthBoost()
-            local character = LocalPlayer.Character
-            if character then
-                local humanoid = character:FindFirstChild("Humanoid")
+    if Features.Health.Enabled then
+        HealthBtn.Text = "ON"
+        HealthBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        
+        local function BoostHealth()
+            if LocalPlayer.Character then
+                local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
                 if humanoid then
-                    -- Increase max health
-                    humanoid.MaxHealth = humanoid.MaxHealth + Hacks.Health.Bonus
+                    humanoid.MaxHealth = humanoid.MaxHealth + Features.Health.Bonus
                     humanoid.Health = humanoid.MaxHealth
                     
-                    -- Auto-regen
+                    -- Auto heal
                     humanoid.HealthChanged:Connect(function()
-                        if Hacks.Health.Active and humanoid.Health < humanoid.MaxHealth then
+                        if Features.Health.Enabled and humanoid.Health < humanoid.MaxHealth then
                             humanoid.Health = humanoid.MaxHealth
                         end
                     end)
@@ -287,38 +267,38 @@ local function HealthHack(enable)
             end
         end
         
-        ApplyHealthBoost()
-        
-        -- Re-apply when character respawns
-        LocalPlayer.CharacterAdded:Connect(ApplyHealthBoost)
+        BoostHealth()
+        LocalPlayer.CharacterAdded:Connect(BoostHealth)
+    else
+        HealthBtn.Text = "OFF"
+        HealthBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
     end
-end
-
--- ========== INITIALIZE ==========
-local FeaturesFrame = MikaaDevUI:Create()
-
--- ADD FEATURES WITH SEPARATE BUTTONS
-MikaaDevUI:AddFeature("COIN", "OFF", function(state)
-    CoinHack(state)
 end)
 
-MikaaDevUI:AddFeature("DAMAGE", "OFF", function(state)
-    DamageHack(state)
-end)
-
-MikaaDevUI:AddFeature("HEALTH", "OFF", function(state)
-    HealthHack(state)
-end)
-
-MikaaDevUI:AddFeature("SPEED", "OFF", function(state)
-    if state then
-        if LocalPlayer.Character then
-            local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
-            if humanoid then
-                humanoid.WalkSpeed = 32
+-- ========== FITUR SPEED ==========
+local SpeedFrame, SpeedBtn = CreateFeature("SPEED", "2x Movement Speed")
+SpeedBtn.MouseButton1Click:Connect(function()
+    local enabled = SpeedBtn.Text == "OFF"
+    
+    if enabled then
+        SpeedBtn.Text = "ON"
+        SpeedBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        
+        local function SetSpeed()
+            if LocalPlayer.Character then
+                local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = 32
+                end
             end
         end
+        
+        SetSpeed()
+        LocalPlayer.CharacterAdded:Connect(SetSpeed)
     else
+        SpeedBtn.Text = "OFF"
+        SpeedBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+        
         if LocalPlayer.Character then
             local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
             if humanoid then
@@ -328,40 +308,57 @@ MikaaDevUI:AddFeature("SPEED", "OFF", function(state)
     end
 end)
 
-MikaaDevUI:AddFeature("NO COOLDOWN", "OFF", function(state)
-    if state then
-        spawn(function()
-            while Hacks.CooldownActive do
-                for _, obj in pairs(game:GetDescendants()) do
-                    if obj:IsA("NumberValue") and (obj.Name:find("Cooldown") or obj.Name:find("CD")) then
-                        obj.Value = 0
-                    end
-                end
-                wait(0.5)
-            end
-        end)
-    end
-    Hacks.CooldownActive = state
-end)
+-- ========== TOMBOL MINIMIZE/CLOSE ==========
+local isMinimized = false
+local originalSize = MainFrame.Size
+local minimizedSize = UDim2.new(0, 280, 0, 40)
 
--- HOTKEY TOGGLE
-UserInputService.InputBegan:Connect(function(input)
-    if input.KeyCode == MikaaDevUI.ToggleKey then
-        MikaaDevUI.ScreenGui.Enabled = not MikaaDevUI.ScreenGui.Enabled
+MinBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    
+    if isMinimized then
+        MainFrame.Size = minimizedSize
+        FeaturesFrame.Visible = false
+        Subtitle.Visible = false
+        MinBtn.Text = "□"
+    else
+        MainFrame.Size = originalSize
+        FeaturesFrame.Visible = true
+        Subtitle.Visible = true
+        MinBtn.Text = "_"
     end
 end)
 
--- NOTIFICATION
-print("===========================================")
-print("MikaaDev Delta Executor v3 Loaded!")
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- ========== HOTKEY ==========
+UIS.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.RightShift then
+        MainFrame.Visible = not MainFrame.Visible
+    end
+end)
+
+-- ========== NOTIFIKASI ==========
+print("========================================")
+print("MIKAADEV DELTA EXECUTOR LOADED")
 print("TestingDevByMikaa")
-print("Features: COIN | DAMAGE | HEALTH | SPEED | NO CD")
-print("Press RightShift to toggle UI")
-print("===========================================")
+print("Press RightShift to hide/show UI")
+print("========================================")
 
--- Welcome message
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "MikaaDev Delta",
-    Text = "Executor Loaded! Press RightShift",
-    Duration = 5
-})
+-- Auto apply jika karakter spawn
+LocalPlayer.CharacterAdded:Connect(function()
+    wait(1)
+    -- Re-apply enabled features
+    if Features.Health.Enabled then
+        local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.MaxHealth = humanoid.MaxHealth + Features.Health.Bonus
+            humanoid.Health = humanoid.MaxHealth
+        end
+    end
+end)
+
+-- Done
+return "MikaaDev Delta Executor by TestingDevByMikaa"

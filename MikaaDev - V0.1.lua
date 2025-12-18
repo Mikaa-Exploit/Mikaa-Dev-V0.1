@@ -1,280 +1,320 @@
 -- ============================================
--- [ MIKAADEV FISH IT! FIXED v2.0 ]
--- FIXED: Chaos button error + Proper threading
+-- [ MIKAADEV FISHING BLOCKER v3.0 ]
+-- Real-time invisible wall system
+-- Blocks all fishermen from casting
 -- ============================================
 
 repeat task.wait() until game:IsLoaded()
-print("[MIKAADEV] Fish It! Exploit v2.0 Activated!")
+print("[MIKAADEV] Fishing Blocker System Activated!")
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
--- GLOBAL CONTROL VARIABLES
-local chaosMode = false
-local chaosThread = nil
-local exploitActive = true
+-- CONTROL VARIABLES
+local blockMode = false
+local blockThread = nil
+local invisibleWalls = {}
+local blockedPlayers = {}
 
--- ========== FIXED ROD DESTRUCTION ==========
-local function deleteAllFishingRods()
-    if not exploitActive then return end
+-- ========== CREATE INVISIBLE WALL ==========
+local function createBlockWall(targetPlayer)
+    if not targetPlayer or not targetPlayer.Character then return nil end
     
-    local destroyed = 0
-    for _, target in pairs(Players:GetPlayers()) do
-        if target ~= player then
-            -- Destroy equipped rods
-            if target.Character then
-                for _, tool in pairs(target.Character:GetChildren()) do
-                    if tool:IsA("Tool") then
-                        pcall(function() 
-                            tool:Destroy()
-                            destroyed = destroyed + 1
-                        end)
-                    end
-                end
-            end
-            
-            -- Destroy backpack rods
-            local backpack = target:FindFirstChild("Backpack")
-            if backpack then
-                for _, tool in pairs(backpack:GetChildren()) do
-                    if tool:IsA("Tool") then
-                        pcall(function() 
-                            tool:Destroy()
-                            destroyed = destroyed + 1
-                        end)
-                    end
-                end
-            end
-        end
+    local root = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not root then return nil end
+    
+    -- Destroy old wall if exists
+    if invisibleWalls[targetPlayer] then
+        invisibleWalls[targetPlayer]:Destroy()
+        invisibleWalls[targetPlayer] = nil
     end
     
-    if destroyed > 0 then
-        print("[RODS DESTROYED]", destroyed, "fishing rods deleted")
-    end
+    -- Create invisible wall IN FRONT of fisherman
+    local wall = Instance.new("Part")
+    wall.Name = "MIKAADEV_BLOCK_WALL_" .. targetPlayer.Name
+    wall.Size = Vector3.new(15, 20, 2) -- Lebar, tinggi, tipis
+    wall.Transparency = 0.7 -- Semi-transparan biar keliatan
+    wall.Color = Color3.fromRGB(255, 0, 0)
+    wall.Material = Enum.Material.Neon
+    wall.CanCollide = true
+    wall.Anchored = true
+    wall.CastShadow = false
+    
+    -- Position wall 5 stud di depan pemancing
+    local lookVector = root.CFrame.LookVector
+    wall.CFrame = root.CFrame * CFrame.new(0, 0, -8) -- DI DEPAN!
+    
+    -- Add warning text
+    local billboard = Instance.new("BillboardGui")
+    billboard.Size = UDim2.new(0, 200, 0, 50)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = wall
+    
+    local label = Instance.new("TextLabel")
+    label.Text = "🚫 NO FISHING! 🚫"
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.TextColor3 = Color3.fromRGB(255, 50, 50)
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.GothamBlack
+    label.TextScaled = true
+    label.Parent = billboard
+    
+    wall.Parent = workspace
+    invisibleWalls[targetPlayer] = wall
+    
+    print("[WALL CREATED] Blocking", targetPlayer.Name)
+    return wall
 end
 
--- ========== FIXED PLAYER LAUNCH ==========
-local function launchFishermen()
-    if not exploitActive then return end
+-- ========== DETECT FISHERMEN ==========
+local function detectFishermen()
+    local fishermen = {}
     
     for _, target in pairs(Players:GetPlayers()) do
         if target ~= player and target.Character then
-            local root = target.Character:FindFirstChild("HumanoidRootPart")
-            local humanoid = target.Character:FindFirstChild("Humanoid")
+            -- Cek apakah lagi pegang fishing rod
+            local hasFishingRod = false
+            for _, tool in pairs(target.Character:GetChildren()) do
+                if tool:IsA("Tool") and (
+                    tool.Name:lower():find("rod") or
+                    tool.Name:lower():find("fish") or
+                    tool.Name:lower():find("pole")
+                ) then
+                    hasFishingRod = true
+                    break
+                end
+            end
             
-            if root then
-                -- FIXED: Proper physics launch
-                pcall(function()
-                    root.Velocity = Vector3.new(
-                        math.random(-30, 30),
-                        math.random(150, 300), -- LAUNCH POWER
-                        math.random(-30, 30)
-                    )
-                    
-                    root.RotVelocity = Vector3.new(
-                        math.random(-20, 20),
-                        math.random(-20, 20),
-                        math.random(-20, 20)
-                    )
-                    
-                    -- Unequip fishing rods
-                    if humanoid then
-                        humanoid:UnequipTools()
-                        
-                        -- Temporary stun
-                        humanoid.PlatformStand = true
-                        task.delay(2, function()
-                            if humanoid then
-                                humanoid.PlatformStand = false
-                            end
-                        end)
+            -- Cek di backpack juga
+            if not hasFishingRod and target:FindFirstChild("Backpack") then
+                for _, tool in pairs(target.Backpack:GetChildren()) do
+                    if tool:IsA("Tool") and (
+                        tool.Name:lower():find("rod") or
+                        tool.Name:lower():find("fish")
+                    ) then
+                        hasFishingRod = true
+                        break
                     end
-                    
-                    print("[LAUNCHED]", target.Name)
-                end)
+                end
+            end
+            
+            if hasFishingRod then
+                table.insert(fishermen, target)
+                blockedPlayers[target] = true
             end
         end
     end
+    
+    return fishermen
 end
 
--- ========== FIXED CHAOS LOOP ==========
-local function startChaosLoop()
-    if chaosThread then
-        chaosMode = false
-        task.wait(0.2)
+-- ========== REAL-TIME BLOCK SYSTEM ==========
+local function startBlockSystem()
+    if blockThread then
+        blockMode = false
+        task.wait(0.5)
     end
     
-    chaosMode = true
-    print("[CHAOS] Mode activated!")
+    blockMode = true
+    print("[BLOCK SYSTEM] ACTIVATED - Creating invisible walls!")
     
-    chaosThread = task.spawn(function()
-        while chaosMode and exploitActive do
-            -- Execute attacks
-            deleteAllFishingRods()
-            task.wait(0.5)
+    -- Clear old walls
+    for _, wall in pairs(invisibleWalls) do
+        wall:Destroy()
+    end
+    invisibleWalls = {}
+    blockedPlayers = {}
+    
+    blockThread = task.spawn(function()
+        while blockMode do
+            -- Deteksi semua pemancing
+            local fishermen = detectFishermen()
             
-            launchFishermen()
-            task.wait(2.5) -- Interval 3 detik total
-            
-            -- Update GUI
-            if chaosBtn then
-                chaosBtn.Text = "🔥 CHAOS: ON"
-                chaosBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+            -- Buat wall untuk setiap pemancing
+            for _, fisherman in pairs(fishermen) do
+                if not invisibleWalls[fisherman] then
+                    createBlockWall(fisherman)
+                else
+                    -- Update wall position
+                    local wall = invisibleWalls[fisherman]
+                    local root = fisherman.Character:FindFirstChild("HumanoidRootPart")
+                    if wall and root then
+                        wall.CFrame = root.CFrame * CFrame.new(0, 0, -8)
+                    end
+                end
             end
+            
+            -- Hapus wall untuk yang udah gabawa rod
+            for target, wall in pairs(invisibleWalls) do
+                if not blockedPlayers[target] then
+                    wall:Destroy()
+                    invisibleWalls[target] = nil
+                    print("[WALL REMOVED]", target.Name)
+                end
+            end
+            
+            blockedPlayers = {}
+            task.wait(0.5) -- Update setiap 0.5 detik
         end
         
-        -- Cleanup when stopped
-        chaosThread = nil
-        if chaosBtn then
-            chaosBtn.Text = "⚡ CHAOS: OFF"
-            chaosBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        -- Cleanup saat mode dimatikan
+        for _, wall in pairs(invisibleWalls) do
+            wall:Destroy()
         end
-        print("[CHAOS] Mode deactivated!")
+        invisibleWalls = {}
+        blockedPlayers = {}
+        
+        blockThread = nil
+        print("[BLOCK SYSTEM] DEACTIVATED")
     end)
 end
 
-local function stopChaosLoop()
-    chaosMode = false
-    if chaosThread then
-        task.cancel(chaosThread)
-        chaosThread = nil
-    end
-end
-
--- ========== SIMPLE ONE-TIME ATTACK ==========
-local function executeNuclearAttack()
-    print("[NUCLEAR] Executing one-time attack...")
-    
-    -- Attack 1: Destroy rods
-    deleteAllFishingRods()
-    task.wait(0.3)
-    
-    -- Attack 2: Launch players
-    launchFishermen()
-    task.wait(0.3)
-    
-    -- Attack 3: Spam interruption
-    for _, target in pairs(Players:GetPlayers()) do
-        if target ~= player and target.Character then
-            local humanoid = target.Character:FindFirstChild("Humanoid")
-            if humanoid then
-                pcall(function()
-                    for i = 1, 3 do
-                        humanoid:UnequipTools()
-                        task.wait(0.1)
-                    end
-                end)
+-- ========== ANTI-CASTING SYSTEM ==========
+local function antiCastingSystem()
+    -- Monitor rod casting attempts
+    local function monitorCasting(target)
+        if not target.Character then return end
+        
+        local humanoid = target.Character:FindFirstChild("Humanoid")
+        if not humanoid then return end
+        
+        -- Intercept tool equip
+        target.Character.ChildAdded:Connect(function(tool)
+            if tool:IsA("Tool") and blockMode then
+                -- Force unequip jika ada wall
+                if invisibleWalls[target] then
+                    task.wait(0.1)
+                    humanoid:UnequipTools()
+                    print("[CAST BLOCKED]", target.Name, "tried to equip rod")
+                end
             end
+        end)
+    end
+    
+    -- Setup monitoring untuk semua player
+    for _, target in pairs(Players:GetPlayers()) do
+        if target ~= player then
+            monitorCasting(target)
         end
     end
     
-    print("[NUCLEAR] Attack completed!")
+    Players.PlayerAdded:Connect(function(newPlayer)
+        monitorCasting(newPlayer)
+    end)
 end
 
--- ========== FIXED GUI ==========
+-- ========== SIMPLE GUI ==========
 local gui = Instance.new("ScreenGui")
-gui.Name = "MIKAADEV_EXPLOIT_GUI"
+gui.Name = "MIKAADEV_BLOCK_GUI"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0.18, 0, 0.2, 0)
-mainFrame.Position = UDim2.new(0.02, 0, 0.02, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-mainFrame.BackgroundTransparency = 0.2
-mainFrame.Parent = gui
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0.2, 0, 0.15, 0)
+frame.Position = UDim2.new(0.02, 0, 0.02, 0)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+frame.BackgroundTransparency = 0.2
+frame.Parent = gui
 
 -- Title
 local title = Instance.new("TextLabel")
-title.Text = "🎣 MIKAADEV"
-title.Size = UDim2.new(1, 0, 0.3, 0)
-title.TextColor3 = Color3.fromRGB(255, 100, 0)
+title.Text = "🚫 FISH BLOCKER"
+title.Size = UDim2.new(1, 0, 0.35, 0)
+title.TextColor3 = Color3.fromRGB(255, 50, 100)
 title.Font = Enum.Font.GothamBlack
 title.TextScaled = true
 title.BackgroundTransparency = 1
-title.Parent = mainFrame
+title.Parent = frame
 
--- Chaos button (FIXED)
-chaosBtn = Instance.new("TextButton")
-chaosBtn.Name = "ChaosButton"
-chaosBtn.Text = "⚡ CHAOS: OFF"
-chaosBtn.Size = UDim2.new(0.9, 0, 0.25, 0)
-chaosBtn.Position = UDim2.new(0.05, 0, 0.35, 0)
-chaosBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-chaosBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-chaosBtn.Font = Enum.Font.GothamBold
-chaosBtn.TextScaled = true
-chaosBtn.Parent = mainFrame
+-- Block button
+local blockBtn = Instance.new("TextButton")
+blockBtn.Name = "BlockButton"
+blockBtn.Text = "🚫 BLOCK: OFF"
+blockBtn.Size = UDim2.new(0.9, 0, 0.45, 0)
+blockBtn.Position = UDim2.new(0.05, 0, 0.4, 0)
+blockBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+blockBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+blockBtn.Font = Enum.Font.GothamBold
+blockBtn.TextScaled = true
+blockBtn.Parent = frame
 
--- Nuclear attack button
-local nuclearBtn = Instance.new("TextButton")
-nuclearBtn.Text = "💥 NUCLEAR"
-nuclearBtn.Size = UDim2.new(0.9, 0, 0.25, 0)
-nuclearBtn.Position = UDim2.new(0.05, 0, 0.65, 0)
-nuclearBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 200)
-nuclearBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-nuclearBtn.Font = Enum.Font.GothamBold
-nuclearBtn.TextScaled = true
-nuclearBtn.Parent = mainFrame
-
--- Button click handlers (FIXED PROPER BINDING)
-chaosBtn.MouseButton1Click:Connect(function()
-    if chaosMode then
-        stopChaosLoop()
-        chaosBtn.Text = "⚡ CHAOS: OFF"
-        chaosBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-    else
-        startChaosLoop()
-    end
-end)
-
-nuclearBtn.MouseButton1Click:Connect(function()
-    executeNuclearAttack()
-    nuclearBtn.Text = "✅ EXECUTED"
-    task.wait(1)
-    nuclearBtn.Text = "💥 NUCLEAR"
-end)
-
--- Status label
+-- Status
 local statusLabel = Instance.new("TextLabel")
-statusLabel.Text = "Status: Ready"
-statusLabel.Size = UDim2.new(1, 0, 0.15, 0)
-statusLabel.Position = UDim2.new(0, 0, 0.9, 0)
-statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+statusLabel.Text = "Walls: 0 | Fishermen: 0"
+statusLabel.Size = UDim2.new(1, 0, 0.2, 0)
+statusLabel.Position = UDim2.new(0, 0, 0.85, 0)
+statusLabel.TextColor3 = Color3.fromRGB(0, 255, 150)
 statusLabel.BackgroundTransparency = 1
 statusLabel.Font = Enum.Font.Gotham
 statusLabel.TextScaled = true
-statusLabel.Parent = mainFrame
+statusLabel.Parent = frame
 
--- Auto status update
+-- Button handler
+blockBtn.MouseButton1Click:Connect(function()
+    if blockMode then
+        blockMode = false
+        blockBtn.Text = "🚫 BLOCK: OFF"
+        blockBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        
+        -- Hapus semua wall
+        for _, wall in pairs(invisibleWalls) do
+            wall:Destroy()
+        end
+        invisibleWalls = {}
+    else
+        startBlockSystem()
+        blockBtn.Text = "✅ BLOCK: ON"
+        blockBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+    end
+end)
+
+-- Start anti-casting system
+antiCastingSystem()
+
+-- Status update thread
 task.spawn(function()
     while gui.Parent do
-        local status = chaosMode and "CHAOS ACTIVE" or "READY"
-        local playerCount = #Players:GetPlayers() - 1
-        statusLabel.Text = status .. " | Players: " .. playerCount
+        local wallCount = 0
+        for _ in pairs(invisibleWalls) do wallCount = wallCount + 1 end
+        
+        local fishermen = detectFishermen()
+        local fisherCount = #fishermen
+        
+        statusLabel.Text = string.format("Walls: %d | Fishermen: %d", wallCount, fisherCount)
         task.wait(1)
     end
 end)
 
--- Auto-execute first attack
-task.wait(1)
-executeNuclearAttack()
+-- Auto-create test wall for visualization
+task.wait(2)
+if player.Character then
+    local testWall = Instance.new("Part")
+    testWall.Name = "TEST_WALL_VISUAL"
+    testWall.Size = Vector3.new(10, 10, 1)
+    testWall.Transparency = 0.5
+    testWall.Color = Color3.fromRGB(255, 0, 0)
+    testWall.Material = Enum.Material.Neon
+    testWall.CanCollide = true
+    testWall.Anchored = true
+    testWall.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -10)
+    testWall.Parent = workspace
+    
+    task.wait(3)
+    testWall:Destroy()
+end
 
--- Cleanup on player leaving
-game:GetService("Players").PlayerRemoving:Connect(function(leavingPlayer)
-    if leavingPlayer == player then
-        exploitActive = false
-        stopChaosLoop()
-        gui:Destroy()
-    end
-end)
-
-print("[MIKAADEV] ==================================")
-print("[MIKAADEV] SYSTEM READY!")
-print("[MIKAADEV] GUI loaded with 2 buttons:")
-print("[MIKAADEV] 1. ⚡ CHAOS: ON/OFF - Continuous attack")
-print("[MIKAADEV] 2. 💥 NUCLEAR - One-time massive attack")
-print("[MIKAADEV] ==================================")
-print("[MIKAADEV] Auto-executed first nuclear attack!")
-print("[MIKAADEV] Check if fishing rods disappeared!")
-print("[MIKAADEV] ==================================")
+print("[MIKAADEV] ===================================")
+print("[MIKAADEV] FISHING BLOCK SYSTEM READY!")
+print("[MIKAADEV] ")
+print("[MIKAADEV] HOW IT WORKS:")
+print("[MIKAADEV] 1. System detects players with fishing rods")
+print("[MIKAADEV] 2. Creates RED INVISIBLE WALL in front of them")
+print("[MIKAADEV] 3. Wall blocks casting/rod throwing")
+print("[MIKAADEV] 4. Real-time tracking (updates every 0.5s)")
+print("[MIKAADEV] ")
+print("[MIKAADEV] CONTROLS:")
+print("[MIKAADEV] Click 🚫 BLOCK button to toggle")
+print("[MIKAADEV] ===================================")
+print("[MIKAADEV] Expected: Fishermen CANNOT cast rods!")
+print("[MIKAADEV] ===================================")

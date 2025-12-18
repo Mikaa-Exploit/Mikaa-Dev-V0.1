@@ -1,430 +1,359 @@
 -- ============================================
--- [ MIKAADEV FISHING CHAOS v3.0 - FIXED ]
--- Created by: MikaaDev
--- Platform: Roblox Mobile (Android)
+-- [ MIKAADEV TELEPORT & LAUNCH FIX v4.0 ]
+-- HANYA TELEPORT + LAUNCH, NO UI RIBET
 -- ============================================
 
--- Wait for game
 repeat task.wait() until game:IsLoaded()
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-
--- Wait for character properly
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
--- CONFIG
-local chaosEnabled = false
+-- SIMPLE CONFIG
 local currentTarget = nil
 local chaosBoat = nil
-local uiVisible = true
-
--- MIKAADEV CONFIG
-local OWNER_NAME = "MikaaDev"
-local OWNER_VERSION = "v3.0"
 
 print("========================================")
-print("MIKAADEV FISHING CHAOS " .. OWNER_VERSION)
-print("Target: Disrupt fishing players with boat")
+print("MIKAADEV FISHING LAUNCHER v4.0")
+print("Simple: Teleport → Launch")
 print("========================================")
 
--- ========== BOAT CREATION ==========
-local function createFishingBoat()
-    if chaosBoat and chaosBoat.Parent then
-        chaosBoat:Destroy()
-    end
+-- ========== SIMPLE BOAT ==========
+local function createSimpleBoat()
+    if chaosBoat then chaosBoat:Destroy() end
     
     local boat = Instance.new("Part")
-    boat.Name = "MIKAADEV_FISHING_BOAT"
-    boat.Size = Vector3.new(10, 3, 20) -- Smaller for fishing games
+    boat.Name = "MIKAADEV_BOAT"
+    boat.Size = Vector3.new(8, 2, 15)
     boat.Material = Enum.Material.Neon
     boat.Color = Color3.fromRGB(255, 0, 0)
     boat.Anchored = false
-    boat.CanCollide = true -- IMPORTANT: Biar bisa nabrak pemancing
-    boat.Transparency = 0.2
+    boat.CanCollide = true
+    boat.Transparency = 0.3
     boat.Parent = workspace
     
-    -- Boat model basic
+    -- Simple seat
     local seat = Instance.new("Seat")
-    seat.Size = Vector3.new(4, 2, 4)
-    seat.CFrame = boat.CFrame * CFrame.new(0, 2, -5)
+    seat.Size = Vector3.new(3, 1.5, 3)
+    seat.CFrame = boat.CFrame * CFrame.new(0, 1.5, -4)
     seat.Parent = boat
     
-    -- Velocity for movement
+    -- Simple velocity
     local bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.MaxForce = Vector3.new(40000, 40000, 40000)
+    bodyVelocity.MaxForce = Vector3.new(50000, 50000, 50000)
     bodyVelocity.Velocity = Vector3.new(0, 0, 0)
     bodyVelocity.Parent = boat
     
-    -- Anti-sink
+    -- Keep boat floating
     local bodyForce = Instance.new("BodyForce")
-    bodyForce.Force = Vector3.new(0, boat:GetMass() * workspace.Gravity * 1.5, 0)
+    bodyForce.Force = Vector3.new(0, boat:GetMass() * workspace.Gravity * 1.3, 0)
     bodyForce.Parent = boat
     
-    -- Fishing disruption field
-    local disruptField = Instance.new("Part")
-    disruptField.Size = Vector3.new(30, 30, 30)
-    disruptField.Transparency = 1
-    disruptField.CanCollide = false
-    disruptField.Anchored = true
-    disruptField.Parent = boat
-    local weld = Instance.new("Weld")
-    weld.Part0 = boat
-    weld.Part1 = disruptField
-    weld.Parent = disruptField
-    
-    print("[MIKAADEV] Fishing boat created! Get in the seat!")
+    print("[MIKAADEV] Boat created!")
     return boat
-end
-
--- ========== GET IN BOAT ==========
-local function getInBoat()
-    if not chaosBoat then return false end
-    
-    local seat = chaosBoat:FindFirstChildWhichIsA("Seat")
-    if seat and character then
-        character:MoveTo(seat.Position)
-        task.wait(0.5)
-        -- Try to sit
-        local humanoid = character:FindFirstChild("Humanoid")
-        if humanoid then
-            humanoid.Sit = true
-        end
-        return true
-    end
-    return false
 end
 
 -- ========== TELEPORT TO FISHERMAN ==========
 local function teleportToFisherman(targetPlayer)
     if not targetPlayer or not targetPlayer.Character then
-        print("[MIKAADEV] Target not found!")
+        print("[ERROR] Target not found!")
         return false
     end
     
     if not chaosBoat then
-        print("[MIKAADEV] Create boat first!")
+        print("[ERROR] Create boat first!")
         return false
     end
     
-    -- Cek apakah target lagi mancing
-    local isFishing = false
-    for _, tool in pairs(targetPlayer.Character:GetChildren()) do
-        if tool:IsA("Tool") and (tool.Name:lower():find("rod") or tool.Name:lower():find("fish")) then
-            isFishing = true
-            break
-        end
-    end
-    
-    if not isFishing then
-        print("[MIKAADEV] Target is not fishing!")
-    end
-    
     local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if targetRoot then
-        -- Teleport boat DI ATAS target (biar jatuh ke dia)
-        chaosBoat.CFrame = targetRoot.CFrame * CFrame.new(0, 10, 0)
-        
-        -- Small explosion effect
-        local exp = Instance.new("Explosion")
-        exp.Position = targetRoot.Position
-        exp.BlastPressure = 0
-        exp.BlastRadius = 10
-        exp.Parent = workspace
-        
-        print("[MIKAADEV] Teleported to " .. targetPlayer.Name)
-        return true
+    if not targetRoot then
+        print("[ERROR] Target root not found!")
+        return false
     end
     
-    return false
+    -- TELEPORT BOAT DI ATAS TARGET
+    chaosBoat.CFrame = targetRoot.CFrame * CFrame.new(0, 20, 0)
+    
+    -- Effect
+    local exp = Instance.new("Explosion")
+    exp.Position = targetRoot.Position
+    exp.BlastPressure = 100
+    exp.BlastRadius = 15
+    exp.Parent = workspace
+    
+    print("[SUCCESS] Teleported to " .. targetPlayer.Name)
+    return true
 end
 
--- ========== LAUNCH FISHERMAN ==========
+-- ========== LAUNCH FISHERMAN HIGH ==========
 local function launchFisherman(targetPlayer)
-    if not targetPlayer or not targetPlayer.Character then return false end
+    if not targetPlayer or not targetPlayer.Character then
+        print("[ERROR] Target not found for launch!")
+        return false
+    end
     
     local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
     local humanoid = targetPlayer.Character:FindFirstChild("Humanoid")
     
-    if targetRoot then
-        -- BOAT SMASH EFFECT: Boat jatuh ke target
-        if chaosBoat then
-            chaosBoat.CFrame = targetRoot.CFrame * CFrame.new(0, 15, 0)
-            task.wait(0.1)
-            
-            -- Drop boat onto fisherman
-            if chaosBoat:FindFirstChild("BodyVelocity") then
-                chaosBoat.BodyVelocity.Velocity = Vector3.new(0, -100, 0)
-            end
+    if not targetRoot then
+        print("[ERROR] Cannot launch, no root part!")
+        return false
+    end
+    
+    -- STEP 1: BOAT DROP ON FISHERMAN
+    if chaosBoat then
+        -- Boat jatuh dari atas ke target
+        chaosBoat.CFrame = targetRoot.CFrame * CFrame.new(0, 25, 0)
+        task.wait(0.1)
+        
+        -- Force boat down
+        if chaosBoat:FindFirstChild("BodyVelocity") then
+            chaosBoat.BodyVelocity.Velocity = Vector3.new(0, -150, 0)
         end
+        task.wait(0.2)
+    end
+    
+    -- STEP 2: LAUNCH TARGET HIGH
+    local launchPower = math.random(300, 400) -- HIGH POWER
+    targetRoot.Velocity = Vector3.new(
+        math.random(-15, 15),
+        launchPower,  -- VERTICAL LAUNCH
+        math.random(-15, 15)
+    )
+    
+    -- STEP 3: SPIN TARGET
+    targetRoot.RotVelocity = Vector3.new(
+        math.random(-20, 20),
+        math.random(-20, 20),
+        math.random(-20, 20)
+    )
+    
+    -- STEP 4: STUN TARGET
+    if humanoid then
+        humanoid.PlatformStand = true
+        humanoid.WalkSpeed = 0
         
-        -- LAUNCH FISHERMAN HIGH
-        targetRoot.Velocity = Vector3.new(
-            math.random(-20, 20),
-            math.random(250, 350), -- HIGH LAUNCH
-            math.random(-20, 20)
-        )
-        
-        -- Spin effect
-        targetRoot.RotVelocity = Vector3.new(
-            math.random(-25, 25),
-            math.random(-25, 25),
-            math.random(-25, 25)
-        )
-        
-        -- Stun fisherman
-        if humanoid then
-            humanoid.PlatformStand = true
-            humanoid.WalkSpeed = 0
-            
-            task.delay(5, function()
-                if humanoid then
-                    humanoid.PlatformStand = false
-                    humanoid.WalkSpeed = 16
-                end
-            end)
-        end
-        
-        -- Fishing rod removal (biar gagal mancing)
+        -- Remove fishing tools
         for _, tool in pairs(targetPlayer.Character:GetChildren()) do
             if tool:IsA("Tool") then
                 tool:Destroy()
             end
         end
         
-        print("[MIKAADEV] LAUNCHED " .. targetPlayer.Name .. " SKY HIGH! 🎣🚀")
-        return true
+        task.delay(4, function()
+            if humanoid then
+                humanoid.PlatformStand = false
+                humanoid.WalkSpeed = 16
+            end
+        end)
     end
     
-    return false
-end
-
--- ========== FISHING CHAOS ROUTINE ==========
-local function fishingChaosRoutine()
-    while chaosEnabled and currentTarget do
-        task.wait(0.5)
-        
-        if not currentTarget.Character then
-            print("[MIKAADEV] Target left, stopping chaos!")
-            chaosEnabled = false
-            break
-        end
-        
-        -- 1. Teleport to fisherman
-        teleportToFisherman(currentTarget)
-        task.wait(0.3)
-        
-        -- 2. Launch fisherman
-        launchFisherman(currentTarget)
-        task.wait(0.5)
-        
-        -- 3. Boat chase after launch
-        if chaosBoat and currentTarget.Character then
-            local targetRoot = currentTarget.Character:FindFirstChild("HumanoidRootPart")
-            if targetRoot and chaosBoat:FindFirstChild("BodyVelocity") then
-                -- Chase the launched fisherman
-                local direction = (targetRoot.Position - chaosBoat.Position).Unit
-                chaosBoat.BodyVelocity.Velocity = direction * 80
-            end
-        end
-        
-        task.wait(2) -- Delay between attacks
+    -- STEP 5: EXPLOSION EFFECTS
+    for i = 1, 3 do
+        local exp = Instance.new("Explosion")
+        exp.Position = targetRoot.Position + Vector3.new(
+            math.random(-5, 5),
+            math.random(0, 10),
+            math.random(-5, 5)
+        )
+        exp.BlastPressure = 500
+        exp.BlastRadius = 12
+        exp.Parent = workspace
+        task.wait(0.1)
     end
+    
+    print("[LAUNCH] " .. targetPlayer.Name .. " LAUNCHED " .. launchPower .. " STUD HIGH!")
+    return true
 end
 
--- ========== MINI GUI ==========
-local miniGui = Instance.new("ScreenGui")
-miniGui.Name = "MIKAADEV_MINI_UI"
-miniGui.Parent = player:WaitForChild("PlayerGui")
+-- ========== SIMPLE GUI ==========
+local gui = Instance.new("ScreenGui")
+gui.Name = "MIKAADEV_SIMPLE"
+gui.Parent = player:WaitForChild("PlayerGui")
 
--- Toggle button (⛔)
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Name = "ToggleUI"
-toggleBtn.Text = "⛔"
-toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-toggleBtn.Position = UDim2.new(0, 10, 0.5, 0)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.Font = Enum.Font.GothamBlack
-toggleBtn.TextSize = 24
-toggleBtn.ZIndex = 10
-toggleBtn.Parent = miniGui
+-- Toggle button
+local toggle = Instance.new("TextButton")
+toggle.Text = "⛔"
+toggle.Size = UDim2.new(0, 45, 0, 45)
+toggle.Position = UDim2.new(0, 5, 0.5, 0)
+toggle.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggle.Font = Enum.Font.GothamBlack
+toggle.TextSize = 20
+toggle.Parent = gui
 
--- Main UI (hidden by default)
-local mainUI = Instance.new("Frame")
-mainUI.Name = "MainUI"
-mainUI.Size = UDim2.new(0.3, 0, 0.5, 0)
-mainUI.Position = UDim2.new(0, 70, 0.25, 0)
-mainUI.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-mainUI.BackgroundTransparency = 0.2
-mainUI.Visible = true
-mainUI.Parent = miniGui
+-- Main frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0.25, 0, 0.4, 0)
+frame.Position = UDim2.new(0, 55, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BackgroundTransparency = 0.15
+frame.Parent = gui
 
--- UI toggle function
-toggleBtn.MouseButton1Click:Connect(function()
+-- Hide/show UI
+local uiVisible = true
+toggle.MouseButton1Click:Connect(function()
     uiVisible = not uiVisible
-    mainUI.Visible = uiVisible
-    toggleBtn.Text = uiVisible and "⛔" or "✅"
+    frame.Visible = uiVisible
+    toggle.Text = uiVisible and "⛔" or "✅"
 end)
 
--- Header
-local header = Instance.new("TextLabel")
-header.Text = "🎣 MIKAADEV 🚤"
-header.Size = UDim2.new(1, 0, 0.15, 0)
-header.TextColor3 = Color3.fromRGB(255, 100, 0)
-header.Font = Enum.Font.GothamBlack
-header.TextScaled = true
-header.BackgroundTransparency = 1
-header.Parent = mainUI
+-- Title
+local title = Instance.new("TextLabel")
+title.Text = "MIKAADEV"
+title.Size = UDim2.new(1, 0, 0.15, 0)
+title.TextColor3 = Color3.fromRGB(255, 100, 0)
+title.Font = Enum.Font.GothamBlack
+title.TextScaled = true
+title.BackgroundTransparency = 1
+title.Parent = frame
 
--- Player list (compact)
-local playerList = Instance.new("ScrollingFrame")
-playerList.Size = UDim2.new(0.9, 0, 0.4, 0)
-playerList.Position = UDim2.new(0.05, 0, 0.2, 0)
-playerList.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-playerList.Parent = mainUI
+-- Player list
+local list = Instance.new("ScrollingFrame")
+list.Size = UDim2.new(0.9, 0, 0.35, 0)
+list.Position = UDim2.new(0.05, 0, 0.2, 0)
+list.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+list.Parent = frame
 
-local function updatePlayerList()
-    playerList:ClearAllChildren()
+local function updateList()
+    list:ClearAllChildren()
     
-    local yOffset = 0
+    local y = 0
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= player then
             local btn = Instance.new("TextButton")
-            btn.Text = "🎯 " .. plr.Name
-            btn.Size = UDim2.new(0.9, 0, 0, 30)
-            btn.Position = UDim2.new(0.05, 0, 0, yOffset)
-            btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+            btn.Text = plr.Name
+            btn.Size = UDim2.new(0.9, 0, 0, 25)
+            btn.Position = UDim2.new(0.05, 0, 0, y)
+            btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
             btn.TextColor3 = Color3.fromRGB(255, 255, 255)
             btn.Font = Enum.Font.Gotham
             btn.TextScaled = true
             
             btn.MouseButton1Click:Connect(function()
                 currentTarget = plr
-                print("[MIKAADEV] Target: " .. plr.Name)
+                print("[TARGET] Selected: " .. plr.Name)
             end)
             
-            btn.Parent = playerList
-            yOffset = yOffset + 35
+            btn.Parent = list
+            y = y + 30
         end
     end
-    playerList.CanvasSize = UDim2.new(0, 0, 0, yOffset)
+    list.CanvasSize = UDim2.new(0, 0, 0, y)
 end
 
--- Compact buttons
+-- Simple buttons
 local buttons = {
-    {text = "🚤 GET BOAT", func = function()
-        chaosBoat = createFishingBoat()
+    {text = "🚤 BOAT", func = function()
+        chaosBoat = createSimpleBoat()
         if humanoidRootPart then
-            chaosBoat.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -2, -10)
-        end
-        getInBoat()
-    end},
-    
-    {text = "🎣 GET IN BOAT", func = function()
-        if getInBoat() then
-            print("[MIKAADEV] In boat seat!")
-        else
-            print("[MIKAADEV] No boat or seat!")
+            chaosBoat.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -2, -8)
         end
     end},
     
-    {text = "🚀 TP TO TARGET", func = function()
-        if currentTarget then
-            teleportToFisherman(currentTarget)
-        else
-            print("[MIKAADEV] Select target first!")
+    {text = "🎣 TP & LAUNCH", func = function()
+        if not currentTarget then
+            print("[ERROR] Select target first!")
+            return
         end
-    end},
-    
-    {text = "⚡ RUSH: OFF", func = function(btn)
-        chaosEnabled = not chaosEnabled
         
-        if chaosEnabled then
-            if not currentTarget then
-                print("[MIKAADEV] Select target first!")
-                chaosEnabled = false
-                return
-            end
-            
-            if not chaosBoat then
-                print("[MIKAADEV] Create boat first!")
-                chaosEnabled = false
-                return
-            end
-            
-            btn.Text = "🔥 RUSH: ON"
-            btn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-            
-            -- Start chaos routine
-            task.spawn(fishingChaosRoutine)
-        else
-            btn.Text = "⚡ RUSH: OFF"
-            btn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+        if not chaosBoat then
+            print("[ERROR] Create boat first!")
+            return
         end
+        
+        -- Teleport dulu
+        local teleportSuccess = teleportToFisherman(currentTarget)
+        if not teleportSuccess then return end
+        
+        task.wait(0.3)
+        
+        -- Launch setelah teleport
+        local launchSuccess = launchFisherman(currentTarget)
+        if launchSuccess then
+            print("[SUCCESS] Target launched successfully!")
+        end
+    end},
+    
+    {text = "⚡ AUTO RUSH", func = function(btn)
+        if not currentTarget then
+            print("[ERROR] Select target first!")
+            return
+        end
+        
+        if not chaosBoat then
+            print("[ERROR] Create boat first!")
+            return
+        end
+        
+        -- Auto loop
+        for i = 1, 5 do  -- 5x launch
+            teleportToFisherman(currentTarget)
+            task.wait(0.2)
+            launchFisherman(currentTarget)
+            task.wait(1.5)
+        end
+        
+        print("[COMPLETE] Auto rush finished!")
     end}
 }
 
-local yPos = 0.65
+local yPos = 0.6
 for i, btnData in ipairs(buttons) do
     local btn = Instance.new("TextButton")
     btn.Text = btnData.text
-    btn.Size = UDim2.new(0.9, 0, 0.08, 0)
+    btn.Size = UDim2.new(0.9, 0, 0.1, 0)
     btn.Position = UDim2.new(0.05, 0, yPos, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Font = Enum.Font.GothamBold
     btn.TextScaled = true
-    btn.Parent = mainUI
+    btn.Parent = frame
     
-    if i == 4 then -- Rush button needs self reference
-        btn.MouseButton1Click:Connect(function()
-            btnData.func(btn)
-        end)
+    if i == 3 then
+        btn.MouseButton1Click:Connect(function() btnData.func(btn) end)
     else
         btn.MouseButton1Click:Connect(btnData.func)
     end
     
-    yPos = yPos + 0.1
+    yPos = yPos + 0.12
 end
 
--- Auto update player list
-coroutine.wrap(function()
-    while miniGui.Parent do
-        updatePlayerList()
-        task.wait(3)
-    end
-end)()
-
--- Status display
+-- Status
 local status = Instance.new("TextLabel")
-status.Text = "Ready | Target: None"
-status.Size = UDim2.new(1, 0, 0.08, 0)
+status.Text = "Status: Ready"
+status.Size = UDim2.new(1, 0, 0.1, 0)
 status.Position = UDim2.new(0, 0, 0.95, 0)
 status.TextColor3 = Color3.fromRGB(0, 255, 0)
 status.BackgroundTransparency = 1
 status.Font = Enum.Font.Gotham
-status.Parent = mainUI
+status.Parent = frame
 
 -- Update status
 coroutine.wrap(function()
-    while miniGui.Parent do
-        local targetText = currentTarget and currentTarget.Name or "None"
-        local boatText = chaosBoat and "Boat: ✅" or "Boat: ❌"
-        status.Text = "Target: " .. targetText .. " | " .. boatText
+    while gui.Parent do
+        local targetName = currentTarget and currentTarget.Name or "None"
+        local boatStatus = chaosBoat and "✅" or "❌"
+        status.Text = "Target: " .. targetName .. " | Boat: " .. boatStatus
         task.wait(1)
     end
 end)()
 
+-- Auto update list
+coroutine.wrap(function()
+    while gui.Parent do
+        updateList()
+        task.wait(2)
+    end
+end)()
+
 print("[MIKAADEV] =================================")
-print("[MIKAADEV] FISHING CHAOS SYSTEM LOADED!")
-print("[MIKAADEV] Workflow:")
-print("[MIKAADEV] 1. Select fishing target")
-print("[MIKAADEV] 2. Press GET BOAT")
-print("[MIKAADEV] 3. Press GET IN BOAT (optional)")
-print("[MIKAADEV] 4. Press TP TO TARGET")
-print("[MIKAADEV] 5. Press RUSH: ON")
+print("[MIKAADEV] SYSTEM LOADED!")
+print("[MIKAADEV] Instructions:")
+print("[MIKAADEV] 1. Select target from list")
+print("[MIKAADEV] 2. Click BOAT button")
+print("[MIKAADEV] 3. Click TP & LAUNCH button")
 print("[MIKAADEV] =================================")
-print("[MIKAADEV] UI toggle: Click ⛔ button")
+print("[MIKAADEV] UI Toggle: Click ⛔ button")
 print("[MIKAADEV] =================================")

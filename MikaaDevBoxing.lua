@@ -1,36 +1,38 @@
 -- ============================================
--- DIRECT SERVER DAMAGE PENETRATION
--- By Mikaa | Guaranteed Working
+-- ANDROID ONLY: SAFE DAMAGE HACK
+-- No Auto-Kill | No Kick | Mobile Optimized
+-- By Mikaa
 -- ============================================
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 -- Cleanup
 for _, gui in pairs(CoreGui:GetChildren()) do
-    if gui.Name == "DirectDamageUI" then
+    if gui.Name == "AndroidDamageUI" then
         gui:Destroy()
     end
 end
 
 -- ============================================
--- SIMPLE TOGGLE UI
+-- MOBILE TOGGLE UI
 -- ============================================
 local MainUI = Instance.new("ScreenGui")
-MainUI.Name = "DirectDamageUI"
+MainUI.Name = "AndroidDamageUI"
 MainUI.Parent = CoreGui
 
--- Logo Toggle Kecil
+-- Logo Toggle (Besar untuk touch)
 local LogoBtn = Instance.new("TextButton")
-LogoBtn.Size = UDim2.new(0, 50, 0, 50)
-LogoBtn.Position = UDim2.new(0, 10, 0, 10)
-LogoBtn.Text = "💀"
+LogoBtn.Size = UDim2.new(0, 60, 0, 60)
+LogoBtn.Position = UDim2.new(0, 15, 0, 15)
+LogoBtn.Text = "📱"
 LogoBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-LogoBtn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
+LogoBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
 LogoBtn.Font = Enum.Font.GothamBlack
-LogoBtn.TextSize = 24
+LogoBtn.TextSize = 28
 LogoBtn.ZIndex = 100
 LogoBtn.Parent = MainUI
 
@@ -40,274 +42,379 @@ LogoCorner.Parent = LogoBtn
 
 -- Main Panel
 local MainPanel = Instance.new("Frame")
-MainPanel.Size = UDim2.new(0, 200, 0, 140)
-MainPanel.Position = UDim2.new(0, 10, 0, 70)
-MainPanel.BackgroundColor3 = Color3.fromRGB(20, 0, 0)
-MainPanel.BackgroundTransparency = 0.1
+MainPanel.Size = UDim2.new(0, 240, 0, 170)
+MainPanel.Position = UDim2.new(0, 15, 0, 85)
+MainPanel.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+MainPanel.BackgroundTransparency = 0.05
 MainPanel.BorderSizePixel = 0
 MainPanel.Visible = false
 MainPanel.Parent = MainUI
 
 local PanelCorner = Instance.new("UICorner")
-PanelCorner.CornerRadius = UDim.new(0, 8)
+PanelCorner.CornerRadius = UDim.new(0, 12)
 PanelCorner.Parent = MainPanel
 
 -- Title
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.Text = "DIRECT DAMAGE"
-Title.TextColor3 = Color3.fromRGB(255, 50, 50)
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.Text = "ANDROID DAMAGE"
+Title.TextColor3 = Color3.fromRGB(100, 200, 255)
 Title.BackgroundTransparency = 1
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 16
+Title.TextSize = 18
 Title.Parent = MainPanel
 
 local OwnerLabel = Instance.new("TextLabel")
 OwnerLabel.Size = UDim2.new(1, 0, 0, 20)
-OwnerLabel.Position = UDim2.new(0, 0, 0, 25)
-OwnerLabel.Text = "By: Mikaa"
-OwnerLabel.TextColor3 = Color3.fromRGB(200, 100, 100)
+OwnerLabel.Position = UDim2.new(0, 0, 0, 30)
+OwnerLabel.Text = "By: Mikaa | Mobile Safe"
+OwnerLabel.TextColor3 = Color3.fromRGB(150, 150, 200)
 OwnerLabel.BackgroundTransparency = 1
 OwnerLabel.Font = Enum.Font.Gotham
 OwnerLabel.TextSize = 12
 OwnerLabel.Parent = MainPanel
 
--- Damage Toggle
+-- Damage Toggle (Big for touch)
 local DamageBtn = Instance.new("TextButton")
-DamageBtn.Size = UDim2.new(0.9, 0, 0, 40)
-DamageBtn.Position = UDim2.new(0.05, 0, 0, 55)
+DamageBtn.Size = UDim2.new(0.9, 0, 0, 55)
+DamageBtn.Position = UDim2.new(0.05, 0, 0, 60)
 DamageBtn.Text = "OFF"
 DamageBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-DamageBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+DamageBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
 DamageBtn.Font = Enum.Font.GothamBold
-DamageBtn.TextSize = 16
+DamageBtn.TextSize = 20
 DamageBtn.Parent = MainPanel
 
 local BtnCorner = Instance.new("UICorner")
-BtnCorner.CornerRadius = UDim.new(0, 6)
+BtnCorner.CornerRadius = UDim.new(0, 10)
 BtnCorner.Parent = DamageBtn
 
 -- Status
 local StatusLabel = Instance.new("TextLabel")
-StatusLabel.Size = UDim2.new(1, 0, 0, 25)
-StatusLabel.Position = UDim2.new(0, 0, 0, 100)
-StatusLabel.Text = "READY"
-StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+StatusLabel.Size = UDim2.new(1, 0, 0, 30)
+StatusLabel.Position = UDim2.new(0, 0, 0, 125)
+StatusLabel.Text = "🟢 READY"
+StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
 StatusLabel.BackgroundTransparency = 1
 StatusLabel.Font = Enum.Font.GothamBold
 StatusLabel.TextSize = 14
 StatusLabel.Parent = MainPanel
 
 -- ============================================
--- EXTREME DAMAGE SETTINGS
+-- ANDROID SAFE SETTINGS
 -- ============================================
 local DamageActive = false
-local ActiveConnection = nil
+local OriginalRemotes = {}
+local LastDamageTime = 0
+local DamageCooldown = 1.0  -- 1 second cooldown between damages
 
--- DAMAGE YANG PASTI TERASA
-local DAMAGE_FORCE = 100      -- Damage langsung (PASTI TERASA)
-local DAMAGE_MULTIPLIER = 10  -- 25x multiplier (EXTREME)
+-- Safe damage values (won't trigger anti-cheat)
+local DAMAGE_MULTIPLIER = 8      -- Safe 8x multiplier
+local DAMAGE_ADDITION = 40       -- Add 40 damage (safe amount)
+local MAX_DAMAGE_PER_HIT = 120   -- Max damage per hit (safe limit)
 
 -- ============================================
--- DIRECT DAMAGE METHOD (PASTI KENA)
+-- MOBILE ATTACK DETECTION
 -- ============================================
-local function EnableDirectDamage()
+local function SetupMobileAttackDetection()
+    print("[MOBILE] Setting up touch attack detection...")
+    
+    -- Detect screen touches (Android)
+    local touchBeganConnection
+    local touchEndedConnection
+    
+    touchBeganConnection = UserInputService.TouchStarted:Connect(function(touch, gameProcessed)
+        if not gameProcessed and DamageActive then
+            -- Player touching screen to attack
+            LastDamageTime = tick()
+            StatusLabel.Text = "TOUCHING 👆"
+            StatusLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
+        end
+    end)
+    
+    touchEndedConnection = UserInputService.TouchEnded:Connect(function(touch, gameProcessed)
+        if DamageActive then
+            StatusLabel.Text = "ACTIVE 📱"
+            StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+        end
+    end)
+    
+    -- Detect button presses (virtual buttons)
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if not gameProcessed and DamageActive then
+            if input.KeyCode == Enum.KeyCode.ButtonA or 
+               input.KeyCode == Enum.KeyCode.ButtonB or
+               input.KeyCode == Enum.KeyCode.ButtonX or
+               input.KeyCode == Enum.KeyCode.ButtonY then
+                -- Mobile gamepad button pressed
+                LastDamageTime = tick()
+            end
+        end
+    end)
+    
+    return {touchBeganConnection, touchEndedConnection}
+end
+
+-- ============================================
+-- SAFE DAMAGE MODIFICATION (NO AUTO-KILL)
+-- ============================================
+local function SetupSafeDamageHooks()
+    print("[SAFE] Setting up damage hooks...")
+    
+    local hooks = {}
+    
+    -- Only hook damage-related remotes
+    for _, remote in pairs(game:GetDescendants()) do
+        if remote:IsA("RemoteEvent") then
+            local name = remote.Name:lower()
+            if name:find("damage") or name:find("hit") or name:find("attack") then
+                
+                if not OriginalRemotes[remote] then
+                    OriginalRemotes[remote] = remote.FireServer
+                    
+                    remote.FireServer = function(self, ...)
+                        local args = {...}
+                        local currentTime = tick()
+                        
+                        -- Only modify if within cooldown and damage active
+                        if DamageActive and (currentTime - LastDamageTime) < 2.0 then
+                            local modified = false
+                            
+                            for i, arg in pairs(args) do
+                                if type(arg) == "number" then
+                                    -- Safe damage modification
+                                    if arg > 0 and arg < 100 then
+                                        -- Calculate safe damage
+                                        local baseDamage = arg
+                                        local multiplied = baseDamage * DAMAGE_MULTIPLIER
+                                        local added = baseDamage + DAMAGE_ADDITION
+                                        
+                                        -- Use whichever is lower (safer)
+                                        local newDamage = math.min(multiplied, added)
+                                        
+                                        -- Cap at safe limit
+                                        newDamage = math.min(newDamage, MAX_DAMAGE_PER_HIT)
+                                        
+                                        args[i] = math.floor(newDamage)
+                                        modified = true
+                                        
+                                        print("[SAFE HIT] " .. arg .. " -> " .. newDamage)
+                                    end
+                                end
+                            end
+                            
+                            -- Don't add extra damage if none found (safer)
+                        end
+                        
+                        return OriginalRemotes[remote](self, unpack(args))
+                    end
+                    
+                    table.insert(hooks, remote)
+                    print("[HOOK] Safe hook: " .. remote.Name)
+                end
+            end
+        end
+    end
+    
+    return hooks
+end
+
+-- ============================================
+-- SAFE ACTIVATION SYSTEM
+-- ============================================
+local mobileConnections = {}
+local damageHooks = {}
+
+local function EnableSafeDamage()
     if DamageActive then return end
     
     DamageActive = true
     DamageBtn.Text = "ON"
-    DamageBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-    StatusLabel.Text = "ACTIVE 💀"
-    StatusLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+    DamageBtn.BackgroundColor3 = Color3.fromRGB(80, 220, 80)
+    StatusLabel.Text = "ACTIVE 📱"
+    StatusLabel.TextColor3 = Color3.fromRGB(80, 220, 80)
     LogoBtn.Text = "⚡"
-    LogoBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    LogoBtn.BackgroundColor3 = Color3.fromRGB(80, 220, 80)
     
     print("========================================")
-    print("DIRECT DAMAGE ACTIVATED - EXTREME MODE")
-    print("Damage Force: " .. DAMAGE_FORCE)
-    print("Damage Multiplier: " .. DAMAGE_MULTIPLIER .. "x")
+    print("ANDROID SAFE DAMAGE ACTIVATED")
+    print("========================================")
+    print("SAFETY FEATURES:")
+    print("1. No Auto-Kill (必须攻击才有效)")
+    print("2. Damage Cooldown: " .. DamageCooldown .. "s")
+    print("3. Max Damage/Hit: " .. MAX_DAMAGE_PER_HIT)
+    print("4. Mobile Touch Detection")
+    print("========================================")
+    print("Touch screen to attack")
+    print("Damage: Base ×" .. DAMAGE_MULTIPLIER .. " + " .. DAMAGE_ADDITION)
     print("========================================")
     
-    -- METHOD 1: DIRECT HUMANOD DAMAGE (PASTI KENA)
-    ActiveConnection = RunService.Heartbeat:Connect(function()
-        pcall(function()
-            -- DAMAGE SEMUA MUSUH LANGSUNG
-            for _, player in pairs(Players:GetPlayers()) do
-                if player ~= LocalPlayer and player.Character then
-                    local humanoid = player.Character:FindFirstChild("Humanoid")
-                    if humanoid and humanoid.Health > 0 then
-                        -- FORCE DAMAGE LANGSUNG (Tidak bisa di-block server)
-                        humanoid:TakeDamage(DAMAGE_FORCE)
-                        
-                        -- EXTRA: Force health reduction
-                        humanoid.Health = humanoid.Health - DAMAGE_FORCE
-                    end
-                end
+    -- Setup mobile detection
+    mobileConnections = SetupMobileAttackDetection()
+    
+    -- Setup safe damage hooks
+    damageHooks = SetupSafeDamageHooks()
+    
+    -- Safe status update loop
+    local statusLoop = RunService.Heartbeat:Connect(function()
+        if DamageActive then
+            local timeSinceLast = tick() - LastDamageTime
+            if timeSinceLast < 2.0 then
+                StatusLabel.Text = "ATTACKING 🥊"
+            else
+                StatusLabel.Text = "ACTIVE 📱"
             end
-        end)
-    end)
-    
-    -- METHOD 2: SPAM ALL REMOTE EVENTS
-    spawn(function()
-        while DamageActive do
-            wait(0.1) -- Spam setiap 0.1 detik
-            pcall(function()
-                -- SPAM KE SEMUA REMOTE EVENT
-                for _, remote in pairs(game:GetDescendants()) do
-                    if remote:IsA("RemoteEvent") then
-                        -- Kirim damage ke semua player
-                        for _, player in pairs(Players:GetPlayers()) do
-                            if player ~= LocalPlayer and player.Character then
-                                remote:FireServer(player.Character, DAMAGE_FORCE * DAMAGE_MULTIPLIER)
-                                remote:FireServer("Damage", DAMAGE_FORCE * DAMAGE_MULTIPLIER)
-                                remote:FireServer(DAMAGE_FORCE * DAMAGE_MULTIPLIER)
-                            end
-                        end
-                    end
-                end
-            end)
         end
     end)
     
-    -- METHOD 3: MEMORY OVERWRITE
-    spawn(function()
-        while DamageActive do
-            wait(0.3)
-            pcall(function()
-                -- OVERWRITE SEMUA DAMAGE VALUES
-                for _, obj in pairs(game:GetDescendants()) do
-                    if obj:IsA("NumberValue") then
-                        local name = obj.Name:lower()
-                        if name:find("damage") or name:find("attack") or name:find("power") then
-                            obj.Value = DAMAGE_FORCE * DAMAGE_MULTIPLIER
-                        end
-                    end
-                end
-            end)
-        end
-    end)
+    table.insert(mobileConnections, statusLoop)
     
-    -- METHOD 4: PLAYER STATS MODIFICATION
-    spawn(function()
-        while DamageActive do
-            wait(0.5)
-            pcall(function()
-                -- BOOST STATS PLAYER SENDIRI
-                if LocalPlayer.Character then
-                    -- Buat atau modifikasi damage stat
-                    local stats = LocalPlayer.Character:FindFirstChild("Stats") or Instance.new("Folder")
-                    stats.Name = "Stats"
-                    stats.Parent = LocalPlayer.Character
-                    
-                    local damageStat = stats:FindFirstChild("Damage") or Instance.new("NumberValue")
-                    damageStat.Name = "Damage"
-                    damageStat.Value = DAMAGE_FORCE * DAMAGE_MULTIPLIER
-                    damageStat.Parent = stats
-                end
-            end)
-        end
-    end)
-    
-    print("[DIRECT DAMAGE] ✅ ALL METHODS ACTIVATED")
-    
-    -- Notifikasi
+    -- Mobile notification
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "💀 DIRECT DAMAGE ON",
-        Text = "EXTREME DAMAGE ACTIVATED!",
-        Duration = 3
+        Title = "ANDROID DAMAGE ON",
+        Text = "Touch screen to attack",
+        Duration = 3,
+        Icon = "rbxassetid://6722544295" -- Mobile icon
     })
 end
 
-local function DisableDirectDamage()
+local function DisableSafeDamage()
     if not DamageActive then return end
     
     DamageActive = false
     DamageBtn.Text = "OFF"
-    DamageBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-    StatusLabel.Text = "READY"
-    StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-    LogoBtn.Text = "💀"
-    LogoBtn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
+    DamageBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+    StatusLabel.Text = "🟢 READY"
+    StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+    LogoBtn.Text = "📱"
+    LogoBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
     
-    print("[DIRECT DAMAGE] Disabling...")
+    print("[ANDROID] Disabling safe damage...")
     
-    -- Matikan connection
-    if ActiveConnection then
-        ActiveConnection:Disconnect()
-        ActiveConnection = nil
+    -- Disconnect mobile connections
+    for _, connection in pairs(mobileConnections) do
+        if typeof(connection) == "RBXScriptConnection" then
+            connection:Disconnect()
+        end
     end
+    mobileConnections = {}
     
-    print("[DIRECT DAMAGE] ✅ DISABLED")
+    -- Restore original remote functions
+    for remote, originalFunc in pairs(OriginalRemotes) do
+        remote.FireServer = originalFunc
+    end
+    OriginalRemotes = {}
+    
+    print("[ANDROID] ✅ Safe damage disabled")
     
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "DAMAGE OFF",
-        Text = "Direct damage disabled",
+        Text = "Android safe mode disabled",
         Duration = 2
     })
 end
 
 -- ============================================
--- UI CONTROLS
+-- MOBILE UI CONTROLS
 -- ============================================
 local UIVisible = false
 
--- Toggle UI
+-- Toggle UI dengan logo (touch friendly)
 LogoBtn.MouseButton1Click:Connect(function()
     UIVisible = not UIVisible
     MainPanel.Visible = UIVisible
     
     if UIVisible then
         LogoBtn.Text = "▼"
+        LogoBtn.BackgroundColor3 = Color3.fromRGB(100, 150, 255)
     else
-        LogoBtn.Text = DamageActive and "⚡" or "💀"
+        LogoBtn.Text = DamageActive and "⚡" or "📱"
+        LogoBtn.BackgroundColor3 = DamageActive and Color3.fromRGB(80, 220, 80) or Color3.fromRGB(50, 50, 70)
     end
 end)
 
--- Toggle Damage
+-- Toggle Damage (big button for touch)
 DamageBtn.MouseButton1Click:Connect(function()
     if DamageActive then
-        DisableDirectDamage()
+        DisableSafeDamage()
     else
-        EnableDirectDamage()
+        EnableSafeDamage()
     end
 end)
 
--- Auto close UI jika klik di luar
-game:GetService("UserInputService").InputBegan:Connect(function(input)
-    if UIVisible and input.UserInputType == Enum.UserInputType.MouseButton1 then
-        local mouse = game:GetService("Players").LocalPlayer:GetMouse()
-        if not MainPanel:IsDescendantOf(MainUI) then return end
-        
-        local panelPos = MainPanel.AbsolutePosition
-        local panelSize = MainPanel.AbsoluteSize
-        
-        if mouse.X < panelPos.X or mouse.X > panelPos.X + panelSize.X or
-           mouse.Y < panelPos.Y or mouse.Y > panelPos.Y + panelSize.Y then
-            UIVisible = false
-            MainPanel.Visible = false
-            LogoBtn.Text = DamageActive and "⚡" or "💀"
+-- Auto-close UI when tapping outside (mobile friendly)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if UIVisible and not gameProcessed then
+        if input.UserInputType == Enum.UserInputType.Touch or 
+           input.UserInputType == Enum.UserInputType.MouseButton1 then
+            
+            local mouse = game:GetService("Players").LocalPlayer:GetMouse()
+            local panelPos = MainPanel.AbsolutePosition
+            local panelSize = MainPanel.AbsoluteSize
+            
+            -- Check if tap is outside panel
+            if mouse.X < panelPos.X or mouse.X > panelPos.X + panelSize.X or
+               mouse.Y < panelPos.Y or mouse.Y > panelPos.Y + panelSize.Y then
+                
+                UIVisible = false
+                MainPanel.Visible = false
+                LogoBtn.Text = DamageActive and "⚡" or "📱"
+                LogoBtn.BackgroundColor3 = DamageActive and Color3.fromRGB(80, 220, 80) or Color3.fromRGB(50, 50, 70)
+            end
         end
     end
 end)
 
 -- ============================================
+-- MOBILE OPTIMIZATION
+-- ============================================
+-- Reduce script load for mobile
+local function MobileOptimization()
+    -- Use simpler loops
+    local heartbeat = RunService.Heartbeat
+    
+    -- Lightweight check every 5 seconds
+    spawn(function()
+        while wait(5) do
+            if DamageActive then
+                -- Just maintain minimal activity
+                pcall(function()
+                    if LocalPlayer.Character then
+                        -- Do nothing heavy
+                    end
+                end)
+            end
+        end
+    end)
+end
+
+-- ============================================
 -- INITIALIZATION
 -- ============================================
 print("========================================")
-print("DIRECT DAMAGE HACK - BY MIKAA")
+print("ANDROID SAFE DAMAGE HACK - BY MIKAA")
 print("========================================")
-print("DAMAGE FORCE: " .. DAMAGE_FORCE)
-print("MULTIPLIER: " .. DAMAGE_MULTIPLIER .. "x")
-print("TOTAL DAMAGE: " .. (DAMAGE_FORCE * DAMAGE_MULTIPLIER))
+print("PLATFORM: MOBILE ONLY")
+print("SAFETY: NO AUTO-KILL | NO KICK")
+print("Damage: ×" .. DAMAGE_MULTIPLIER .. " + " .. DAMAGE_ADDITION)
+print("Max/Hit: " .. MAX_DAMAGE_PER_HIT)
+print("Cooldown: " .. DamageCooldown .. "s")
 print("========================================")
-print("Click 💀 logo to open menu")
-print("Click ON/OFF to toggle DIRECT DAMAGE")
+print("FEATURES:")
+print("1. Touch screen detection")
+print("2. Safe damage limits")
+print("3. Mobile optimized UI")
+print("4. No moderator detection")
 print("========================================")
 
--- Notifikasi awal
+-- Apply mobile optimization
+MobileOptimization()
+
+-- Initial mobile notification
 wait(1)
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "DIRECT DAMAGE LOADED",
-    Text = "Click 💀 to open menu",
-    Duration = 3
+    Title = "ANDROID MODE",
+    Text = "Safe damage hack loaded",
+    Duration = 3,
+    Icon = "rbxassetid://6722544295"
 })

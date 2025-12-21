@@ -20,10 +20,10 @@ local waterPlat
 
 -- CONFIG
 local MIN_WALK = 16
-local MAX_WALK = 800
+local MAX_WALK = 120
 local MIN_JUMP = 50
-local MAX_JUMP = 250
-local MAX_FLY = 300
+local MAX_JUMP = 120
+local MAX_FLY = 170
 local SMOOTH = 0.15
 
 -- STATE

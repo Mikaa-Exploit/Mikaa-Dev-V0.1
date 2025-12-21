@@ -10,6 +10,7 @@ if not UIS.TouchEnabled then
     warn("MikaaDev: Mobile only")
     return
 end
+
 local player = Players.LocalPlayer
 local camera = Workspace.CurrentCamera
 

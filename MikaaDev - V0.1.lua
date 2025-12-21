@@ -5,14 +5,11 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local UIS = game:GetService("UserInputService")
 
--- =========================
--- ANDROID ONLY
--- =========================
+-- MOBILE ONLY (ANDROID + IOS)
 if not UIS.TouchEnabled then
     warn("MikaaDev: Mobile only")
     return
 end
-
 local player = Players.LocalPlayer
 local camera = Workspace.CurrentCamera
 
@@ -258,7 +255,8 @@ if flyOn and bodyGyro and bodyVelocity and hum then
         bodyVelocity.Velocity = flySmooth
     else
         -- idle hover lembut
-        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    flySmooth *= 0.85
+    bodyVelocity.Velocity = flySmooth
     end
         end
 

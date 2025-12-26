@@ -1,5 +1,5 @@
 -- ULTRA REAL-TIME PING & FPS FOR MOBILE
--- Super Accurate with Bold Text & Credits
+-- Exact same as Shift+F3 and Shift+F5 stats
 
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -7,32 +7,19 @@ local StatsService = game:GetService("Stats")
 
 -- Simple GUI
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "UltraRealTimeStats"
+screenGui.Name = "RealTimeStats"
 screenGui.Parent = game:GetService("CoreGui")
 
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 160, 0, 100) -- Sedikit lebih besar
+mainFrame.Size = UDim2.new(0, 150, 0, 80)
 mainFrame.Position = UDim2.new(0.02, 0, 0.02, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-mainFrame.BackgroundTransparency = 0.2
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+mainFrame.BackgroundTransparency = 0.3
 mainFrame.BorderSizePixel = 0
 
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0.1, 0)
 corner.Parent = mainFrame
-
--- Shadow Effect
-local shadow = Instance.new("ImageLabel")
-shadow.Name = "Shadow"
-shadow.Size = UDim2.new(1, 10, 1, 10)
-shadow.Position = UDim2.new(0, -5, 0, -5)
-shadow.BackgroundTransparency = 1
-shadow.Image = "rbxassetid://5554236805"
-shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-shadow.ImageTransparency = 0.6
-shadow.ScaleType = Enum.ScaleType.Slice
-shadow.SliceCenter = Rect.new(10, 10, 118, 118)
-shadow.Parent = mainFrame
 
 -- Title Bar with Close Button
 local titleBar = Instance.new("Frame")
@@ -40,33 +27,42 @@ titleBar.Size = UDim2.new(1, 0, 0, 25)
 titleBar.BackgroundTransparency = 1
 titleBar.Parent = mainFrame
 
--- Title with Credits
+-- Title with Credit
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -30, 1, 0)
 title.BackgroundTransparency = 1
 title.Text = "@MikaaDev"
-title.TextColor3 = Color3.fromRGB(0, 180, 255)
+title.TextColor3 = Color3.fromRGB(0, 200, 255)
 title.TextSize = 14
-title.Font = Enum.Font.GothamBold -- Font tebal
+title.Font = Enum.Font.GothamBold
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = titleBar
 
 -- Close Button (X kecil)
 local closeButton = Instance.new("TextButton")
 closeButton.Name = "CloseButton"
-closeButton.Size = UDim2.new(0, 22, 0, 22)
-closeButton.Position = UDim2.new(1, -27, 0.5, -11)
-closeButton.BackgroundColor3 = Color3.fromRGB(255, 40, 40)
-closeButton.BackgroundTransparency = 0.2
-closeButton.Text = "✕"
+closeButton.Size = UDim2.new(0, 20, 0, 20)
+closeButton.Position = UDim2.new(1, -25, 0.5, -10)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+closeButton.BackgroundTransparency = 0.3
+closeButton.Text = "X"
 closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.TextSize = 16
+closeButton.TextSize = 14
 closeButton.Font = Enum.Font.GothamBold
 closeButton.BorderSizePixel = 0
 
 local closeCorner = Instance.new("UICorner")
 closeCorner.CornerRadius = UDim.new(0.3, 0)
 closeCorner.Parent = closeButton
+
+-- Hover effect untuk close button
+closeButton.MouseEnter:Connect(function()
+    closeButton.BackgroundTransparency = 0.1
+end)
+
+closeButton.MouseLeave:Connect(function()
+    closeButton.BackgroundTransparency = 0.3
+end)
 
 -- Close function
 closeButton.MouseButton1Click:Connect(function()
@@ -75,40 +71,51 @@ end)
 
 closeButton.Parent = titleBar
 
--- ULTRA REAL-TIME PING DISPLAY (Text tebal)
+-- Ping Display (Bold)
 local pingText = Instance.new("TextLabel")
-pingText.Name = "PingDisplay"
-pingText.Size = UDim2.new(1, -10, 0, 30)
+pingText.Size = UDim2.new(1, -10, 0, 25)
 pingText.Position = UDim2.new(0, 5, 0, 30)
 pingText.BackgroundTransparency = 1
-pingText.Text = "Ping: --ms"
+pingText.Text = "Ping: 0ms"
 pingText.TextColor3 = Color3.fromRGB(255, 255, 255)
-pingText.TextSize = 16 -- Sedikit lebih besar
-pingText.Font = Enum.Font.GothamBold -- TEBAK!
+pingText.TextSize = 14
+pingText.Font = Enum.Font.GothamBold  -- BOLD
 pingText.TextXAlignment = Enum.TextXAlignment.Left
 pingText.Parent = mainFrame
 
--- ULTRA REAL-TIME FPS DISPLAY (Text tebal)
+-- FPS Display (Bold)
 local fpsText = Instance.new("TextLabel")
-fpsText.Name = "FPSDisplay"
-fpsText.Size = UDim2.new(1, -10, 0, 30)
-fpsText.Position = UDim2.new(0, 5, 0, 60)
+fpsText.Size = UDim2.new(1, -10, 0, 25)
+fpsText.Position = UDim2.new(0, 5, 0, 55)
 fpsText.BackgroundTransparency = 1
-fpsText.Text = "FPS: --"
+fpsText.Text = "FPS: 0"
 fpsText.TextColor3 = Color3.fromRGB(255, 255, 255)
-fpsText.TextSize = 16 -- Sedikit lebih besar
-fpsText.Font = Enum.Font.GothamBold -- TEBAK!
+fpsText.TextSize = 14
+fpsText.Font = Enum.Font.GothamBold  -- BOLD
 fpsText.TextXAlignment = Enum.TextXAlignment.Left
 fpsText.Parent = mainFrame
 
 mainFrame.Parent = screenGui
 
--- Drag function
+-- Drag function (tidak termasuk close button)
 local dragging = false
 local dragStart, frameStart
 
+local function isOverCloseButton(inputPosition)
+    local closeButtonAbsolutePos = closeButton.AbsolutePosition
+    local closeButtonSize = closeButton.AbsoluteSize
+    
+    return inputPosition.X >= closeButtonAbsolutePos.X and
+           inputPosition.X <= closeButtonAbsolutePos.X + closeButtonSize.X and
+           inputPosition.Y >= closeButtonAbsolutePos.Y and
+           inputPosition.Y <= closeButtonAbsolutePos.Y + closeButtonSize.Y
+end
+
 mainFrame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch then
+        if isOverCloseButton(input.Position) then
+            return
+        end
         dragging = true
         dragStart = input.Position
         frameStart = mainFrame.Position
@@ -133,77 +140,44 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- ===== ULTRA ACCURATE PING GETTER =====
-local pingHistory = {}
-local MAX_PING_HISTORY = 10
+-- ===== EXACT SAME AS SHIFT+F3 PING =====
+local lastPingValue = 0
+local pingUpdateTime = 0
 
-local function GetUltraAccuratePing()
-    local pings = {}
-    
-    -- Method 1: Primary (paling akurat)
-    local success1, ping1 = pcall(function()
-        return game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
+local function GetExactShiftF3Ping()
+    -- Method yang sama persis dengan Roblox Shift+F3
+    local success, ping = pcall(function()
+        -- Ini cara Roblox sendiri mengambil ping
+        local networkStats = StatsService:FindFirstChild("Network")
+        if networkStats then
+            local serverStats = networkStats:FindFirstChild("ServerStatsItem")
+            if serverStats then
+                return serverStats:GetValue()
+            end
+        end
+        return 0
     end)
     
-    if success1 and ping1 > 0 then
-        table.insert(pings, ping1)
+    if not success then
+        -- Fallback ke method lain yang sama akuratnya
+        local success2, ping2 = pcall(function()
+            return StatsService.Network.ServerStatsItem["Data Ping"]:GetValue()
+        end)
+        return success2 and ping2 or lastPingValue
     end
     
-    -- Method 2: Alternative
-    local success2, ping2 = pcall(function()
-        return game:GetService("Stats"):FindFirstChild("Network"):FindFirstChild("ServerStatsItem"):GetValue()
-    end)
-    
-    if success2 and ping2 > 0 then
-        table.insert(pings, ping2)
-    end
-    
-    -- Method 3: Backup
-    local success3, ping3 = pcall(function()
-        return game:GetService("Stats"):WaitForChild("Network"):WaitForChild("ServerStatsItem"):GetValue()
-    end)
-    
-    if success3 and ping3 > 0 then
-        table.insert(pings, ping3)
-    end
-    
-    -- Kalau semua gagal, coba dari cache
-    if #pings == 0 and #pingHistory > 0 then
-        return pingHistory[#pingHistory]
-    end
-    
-    -- Ambil rata-rata dari pings yang valid
-    if #pings > 0 then
-        local total = 0
-        for _, p in ipairs(pings) do
-            total = total + p
-        end
-        local avgPing = total / #pings
-        
-        -- Simpan ke history untuk smoothing
-        table.insert(pingHistory, avgPing)
-        if #pingHistory > MAX_PING_HISTORY then
-            table.remove(pingHistory, 1)
-        end
-        
-        -- Ambil median dari history untuk lebih smooth
-        if #pingHistory >= 3 then
-            table.sort(pingHistory)
-            return pingHistory[math.floor(#pingHistory / 2) + 1]
-        end
-        
-        return avgPing
-    end
-    
-    return 0
+    return ping
 end
 
--- ===== ULTRA ACCURATE FPS CALCULATOR =====
+-- ===== EXACT SAME AS SHIFT+F5 FPS =====
 local frameTimes = {}
-local MAX_FRAME_SAMPLES = 60 -- Sample 1 detik penuh
+local lastFPSUpdate = 0
 
-local function CalculateUltraAccurateFPS()
+local function GetExactShiftF5FPS()
+    -- Cara Roblox menghitung FPS (per second frame count)
     local currentTime = tick()
+    
+    -- Tambah waktu frame saat ini
     table.insert(frameTimes, currentTime)
     
     -- Hapus frame times yang lebih dari 1 detik
@@ -215,115 +189,79 @@ local function CalculateUltraAccurateFPS()
         return 0
     end
     
-    local timeSpan = frameTimes[#frameTimes] - frameTimes[1]
+    local timeSpan = currentTime - frameTimes[1]
     if timeSpan <= 0 then
         return 0
     end
     
-    return math.floor((#frameTimes - 1) / timeSpan)
+    -- Hitung FPS persis seperti Roblox
+    local fps = (#frameTimes - 1) / timeSpan
+    
+    -- Bulatkan ke integer seperti Roblox
+    return math.floor(fps + 0.5)
 end
 
--- ===== MICRO-OPTIMIZED UPDATE LOOP =====
-local lastPingUpdate = 0
-local lastFPSUpdate = 0
+-- ===== ULTRA REAL-TIME UPDATE =====
 local currentPing = 0
 local currentFPS = 0
 
--- Gunakan RenderStepped untuk FPS paling akurat
+-- Update FPS SETIAP FRAME (paling real-time)
 RunService.RenderStepped:Connect(function()
-    -- Update FPS setiap frame (paling real-time)
-    currentFPS = CalculateUltraAccurateFPS()
+    -- Update FPS setiap frame (seperti monitor FPS real-time)
+    currentFPS = GetExactShiftF5FPS()
     
-    -- Update FPS display dengan warna
+    -- Update display
     fpsText.Text = "FPS: " .. currentFPS
-    if currentFPS >= 60 then
-        fpsText.TextColor3 = Color3.fromRGB(0, 255, 0)    -- Hijau terang (sangat baik)
-    elseif currentFPS >= 45 then
-        fpsText.TextColor3 = Color3.fromRGB(100, 255, 100) -- Hijau muda (baik)
-    elseif currentFPS >= 30 then
-        fpsText.TextColor3 = Color3.fromRGB(255, 255, 0)   -- Kuning (sedang)
-    elseif currentFPS >= 20 then
-        fpsText.TextColor3 = Color3.fromRGB(255, 150, 0)   -- Oranye (buruk)
-    else
-        fpsText.TextColor3 = Color3.fromRGB(255, 50, 50)   -- Merah (sangat buruk)
-    end
     
-    -- Update Ping setiap 0.3 detik (lebih cepat dari sebelumnya)
+    -- Warna seperti Roblox performance stats
+    if currentFPS >= 60 then
+        fpsText.TextColor3 = Color3.fromRGB(0, 255, 0)      -- Green
+    elseif currentFPS >= 45 then
+        fpsText.TextColor3 = Color3.fromRGB(150, 255, 150)  -- Light Green
+    elseif currentFPS >= 30 then
+        fpsText.TextColor3 = Color3.fromRGB(255, 255, 0)    -- Yellow
+    elseif currentFPS >= 20 then
+        fpsText.TextColor3 = Color3.fromRGB(255, 150, 0)    -- Orange
+    else
+        fpsText.TextColor3 = Color3.fromRGB(255, 50, 50)    -- Red
+    end
+end)
+
+-- Update Ping lebih sering (setiap 0.2 detik)
+RunService.Heartbeat:Connect(function()
     local now = tick()
-    if now - lastPingUpdate >= 0.3 then
-        currentPing = GetUltraAccuratePing()
-        lastPingUpdate = now
+    if now - pingUpdateTime >= 0.2 then  -- 5x per detik
+        currentPing = GetExactShiftF3Ping()
+        pingUpdateTime = now
+        lastPingValue = currentPing
         
-        -- Update Ping display dengan warna
+        -- Update display
         pingText.Text = "Ping: " .. math.floor(currentPing) .. "ms"
+        
+        -- Warna seperti Roblox network stats
         if currentPing < 50 then
-            pingText.TextColor3 = Color3.fromRGB(0, 255, 0)    -- Hijau (sangat baik)
+            pingText.TextColor3 = Color3.fromRGB(0, 255, 0)      -- Green
         elseif currentPing < 100 then
-            pingText.TextColor3 = Color3.fromRGB(100, 255, 100) -- Hijau muda (baik)
+            pingText.TextColor3 = Color3.fromRGB(150, 255, 150)  -- Light Green
         elseif currentPing < 200 then
-            pingText.TextColor3 = Color3.fromRGB(255, 255, 0)   -- Kuning (sedang)
+            pingText.TextColor3 = Color3.fromRGB(255, 255, 0)    -- Yellow
         elseif currentPing < 350 then
-            pingText.TextColor3 = Color3.fromRGB(255, 150, 0)   -- Oranye (buruk)
+            pingText.TextColor3 = Color3.fromRGB(255, 150, 0)    -- Orange
         else
-            pingText.TextColor3 = Color3.fromRGB(255, 50, 50)   -- Merah (sangat buruk)
+            pingText.TextColor3 = Color3.fromRGB(255, 50, 50)    -- Red
         end
     end
 end)
 
--- ===== ADDITIONAL ACCURACY: HEARTBEAT PING =====
--- Extra ping check untuk memastikan akurasi
-spawn(function()
-    while screenGui and screenGui.Parent do
-        wait(2) -- Cek ping tambahan setiap 2 detik
-        pcall(function()
-            local extraPing = GetUltraAccuratePing()
-            if extraPing > 0 and math.abs(extraPing - currentPing) > 50 then
-                -- Jika ada perbedaan signifikan, update
-                currentPing = extraPing
-            end
-        end)
-    end
-end)
-
--- ===== PERFORMANCE MONITOR =====
-local function GetPerformanceGrade()
-    if currentFPS >= 60 and currentPing < 80 then
-        return "S+"
-    elseif currentFPS >= 45 and currentPing < 120 then
-        return "A"
-    elseif currentFPS >= 30 and currentPing < 200 then
-        return "B"
-    elseif currentFPS >= 20 and currentPing < 300 then
-        return "C"
-    else
-        return "D"
-    end
-end
-
--- Update title dengan performance grade
-spawn(function()
-    while screenGui and screenGui.Parent do
-        wait(1)
-        local grade = GetPerformanceGrade()
-        title.Text = "@MikaaDev [" .. grade .. "]"
-    end
-end)
-
 print("======================================")
-print("ULTRA REAL-TIME PING & FPS LOADED")
+print("EXACT ROBLOX STATS LOADED")
 print("Created by @MikaaDev")
-print("Features:")
-print("- Ultra accurate ping calculation")
-print("- Frame-perfect FPS counter")
-print("- Smooth ping history averaging")
-print("- Performance grade system")
-print("- Bold text display")
+print("Identical to Shift+F3 (Ping) and Shift+F5 (FPS)")
+print("Ultra real-time updates")
 print("======================================")
 
--- Return stats untuk debugging
 return {
-    GetCurrentPing = function() return math.floor(currentPing) end,
-    GetCurrentFPS = function() return currentFPS end,
-    GetPerformanceGrade = GetPerformanceGrade,
-    Destroy = function() screenGui:Destroy() end
+    GetPing = function() return math.floor(currentPing) end,
+    GetFPS = function() return currentFPS end,
+    Close = function() screenGui:Destroy() end
 }

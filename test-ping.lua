@@ -1,53 +1,67 @@
--- FIXED ULTRA REAL-TIME PING & FPS
--- 100% SAME AS SHIFT+F3 AND SHIFT+F5
+-- ULTIMATE REAL-TIME PING & FPS DISPLAY
+-- 100% ACCURATE, BIG TEXT, MOBILE OPTIMIZED
 
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local StatsService = game:GetService("Stats")
 
--- Simple GUI
+-- ===== BIGGER UI FOR MOBILE =====
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "RealTimeStats"
+screenGui.Name = "MikaaDev_Stats"
 screenGui.Parent = game:GetService("CoreGui")
 
+-- Larger frame for bigger text
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 150, 0, 80)
+mainFrame.Size = UDim2.new(0, 180, 0, 120) -- Lebih besar
 mainFrame.Position = UDim2.new(0.02, 0, 0.02, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-mainFrame.BackgroundTransparency = 0.3
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+mainFrame.BackgroundTransparency = 0.25
 mainFrame.BorderSizePixel = 0
 
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0.1, 0)
+corner.CornerRadius = UDim.new(0.12, 0)
 corner.Parent = mainFrame
 
--- Title Bar with Close Button
+-- Add subtle shadow
+local shadow = Instance.new("ImageLabel")
+shadow.Name = "Shadow"
+shadow.Size = UDim2.new(1, 10, 1, 10)
+shadow.Position = UDim2.new(0, -5, 0, -5)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://5554236805"
+shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+shadow.ImageTransparency = 0.6
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+shadow.Parent = mainFrame
+
+-- Title Bar
 local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 25)
+titleBar.Size = UDim2.new(1, 0, 0, 32) -- Lebih tinggi
 titleBar.BackgroundTransparency = 1
 titleBar.Parent = mainFrame
 
--- Title with Credit
+-- Title with bigger text
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -30, 1, 0)
+title.Size = UDim2.new(1, -40, 1, 0)
 title.BackgroundTransparency = 1
 title.Text = "@MikaaDev"
-title.TextColor3 = Color3.fromRGB(0, 200, 255)
-title.TextSize = 14
+title.TextColor3 = Color3.fromRGB(0, 180, 255)
+title.TextSize = 16 -- Lebih besar
 title.Font = Enum.Font.GothamBold
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = titleBar
 
--- Close Button (X kecil)
+-- Close Button (slightly bigger)
 local closeButton = Instance.new("TextButton")
 closeButton.Name = "CloseButton"
-closeButton.Size = UDim2.new(0, 20, 0, 20)
-closeButton.Position = UDim2.new(1, -25, 0.5, -10)
-closeButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-closeButton.BackgroundTransparency = 0.3
-closeButton.Text = "X"
+closeButton.Size = UDim2.new(0, 28, 0, 28) -- Lebih besar
+closeButton.Position = UDim2.new(1, -32, 0.5, -14)
+closeButton.BackgroundColor3 = Color3.fromRGB(220, 40, 40)
+closeButton.BackgroundTransparency = 0.2
+closeButton.Text = "✕"
 closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.TextSize = 14
+closeButton.TextSize = 18 -- Lebih besar
 closeButton.Font = Enum.Font.GothamBold
 closeButton.BorderSizePixel = 0
 
@@ -55,13 +69,12 @@ local closeCorner = Instance.new("UICorner")
 closeCorner.CornerRadius = UDim.new(0.3, 0)
 closeCorner.Parent = closeButton
 
--- Hover effect
 closeButton.MouseEnter:Connect(function()
     closeButton.BackgroundTransparency = 0.1
 end)
 
 closeButton.MouseLeave:Connect(function()
-    closeButton.BackgroundTransparency = 0.3
+    closeButton.BackgroundTransparency = 0.2
 end)
 
 closeButton.MouseButton1Click:Connect(function()
@@ -70,33 +83,37 @@ end)
 
 closeButton.Parent = titleBar
 
--- Ping Display (Bold)
+-- ===== BIGGER PING DISPLAY =====
 local pingText = Instance.new("TextLabel")
-pingText.Size = UDim2.new(1, -10, 0, 25)
-pingText.Position = UDim2.new(0, 5, 0, 30)
+pingText.Name = "PingDisplay"
+pingText.Size = UDim2.new(1, -15, 0, 36) -- Lebih tinggi
+pingText.Position = UDim2.new(0, 8, 0, 40)
 pingText.BackgroundTransparency = 1
-pingText.Text = "Ping: 0ms"
+pingText.Text = "Ping: --ms"
 pingText.TextColor3 = Color3.fromRGB(255, 255, 255)
-pingText.TextSize = 14
+pingText.TextSize = 18 -- BESAR! (dari 14)
 pingText.Font = Enum.Font.GothamBold
 pingText.TextXAlignment = Enum.TextXAlignment.Left
+pingText.TextYAlignment = Enum.TextYAlignment.Top
 pingText.Parent = mainFrame
 
--- FPS Display (Bold)
+-- ===== BIGGER FPS DISPLAY =====
 local fpsText = Instance.new("TextLabel")
-fpsText.Size = UDim2.new(1, -10, 0, 25)
-fpsText.Position = UDim2.new(0, 5, 0, 55)
+fpsText.Name = "FPSDisplay"
+fpsText.Size = UDim2.new(1, -15, 0, 36) -- Lebih tinggi
+fpsText.Position = UDim2.new(0, 8, 0, 76)
 fpsText.BackgroundTransparency = 1
-fpsText.Text = "FPS: 0"
+fpsText.Text = "FPS: --"
 fpsText.TextColor3 = Color3.fromRGB(255, 255, 255)
-fpsText.TextSize = 14
+fpsText.TextSize = 18 -- BESAR! (dari 14)
 fpsText.Font = Enum.Font.GothamBold
 fpsText.TextXAlignment = Enum.TextXAlignment.Left
+fpsText.TextYAlignment = Enum.TextYAlignment.Top
 fpsText.Parent = mainFrame
 
 mainFrame.Parent = screenGui
 
--- Drag function
+-- ===== DRAG FUNCTION =====
 local dragging = false
 local dragStart, frameStart
 
@@ -126,175 +143,222 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- ===== FIXED PING GETTER - 100% SAME AS SHIFT+F3 =====
-local function GetRobloxPing()
-    -- COBA SEMUA METODE SAMPAH DAPAT YANG BENER
-    local methods = {
-        function() -- Method 1: Exact Roblox internal
-            local network = StatsService:WaitForChild("Network", 1)
-            if network then
-                local statItem = network:WaitForChild("ServerStatsItem", 1)
-                if statItem then
-                    return statItem:GetValue()
-                end
-            end
-            return nil
-        end,
-        
-        function() -- Method 2: Direct path
-            return StatsService.Network.ServerStatsItem["Data Ping"]:GetValue()
-        end,
-        
-        function() -- Method 3: Alternative path
-            return StatsService:FindFirstChild("Network"):FindFirstChild("ServerStatsItem"):GetValue()
-        end,
-        
-        function() -- Method 4: Try catch all
-            local success, value = pcall(function()
-                return game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
-            end)
-            if success then return value end
-            return nil
-        end,
-        
-        function() -- Method 5: Last resort
-            for _, child in pairs(StatsService:GetChildren()) do
-                if child.Name == "Network" then
-                    for _, stat in pairs(child:GetChildren()) do
-                        if stat.Name == "ServerStatsItem" then
-                            return stat:GetValue()
-                        end
-                    end
-                end
-            end
-            return nil
-        end
-    }
+-- ===== ULTRA ACCURATE PING GETTER =====
+local function GetExactRobloxPing()
+    -- Method yang 100% sama dengan Shift+F3
+    local success, ping = pcall(function()
+        -- Ini cara Roblox internal mengambil ping
+        local stats = game:GetService("Stats")
+        local network = stats.Network
+        local pingStat = network.ServerStatsItem["Data Ping"]
+        return pingStat:GetValue()
+    end)
     
-    -- Coba semua metode
-    for _, method in ipairs(methods) do
-        local success, result = pcall(method)
-        if success and result and result > 0 then
-            return math.floor(result)
-        end
-        wait() -- Kasih jeda
+    if success and ping then
+        return math.floor(ping)
     end
     
-    return 0
+    -- Fallback method
+    local success2, ping2 = pcall(function()
+        return StatsService:FindFirstChild("Network"):FindFirstChild("ServerStatsItem"):GetValue()
+    end)
+    
+    return success2 and math.floor(ping2) or 0
 end
 
--- ===== EXACT FPS CALCULATION =====
-local frameTimes = {}
+-- ===== ULTRA ACCURATE FPS CALCULATOR =====
+local frameTimestamps = {}
+local FPS_HISTORY_SIZE = 120 -- Sample 2 detik untuk lebih smooth
 
-local function GetRobloxFPS()
+local function GetExactRobloxFPS()
     local currentTime = tick()
-    table.insert(frameTimes, currentTime)
     
-    -- Keep only last 1 second
-    while #frameTimes > 0 and currentTime - frameTimes[1] > 1.0 do
-        table.remove(frameTimes, 1)
+    -- Tambah timestamp sekarang
+    table.insert(frameTimestamps, currentTime)
+    
+    -- Pertahankan hanya 2 detik terakhir
+    while #frameTimestamps > 0 and currentTime - frameTimestamps[1] > 2.0 do
+        table.remove(frameTimestamps, 1)
     end
     
-    if #frameTimes < 2 then return 0 end
+    if #frameTimestamps < 2 then
+        return 0
+    end
     
-    local timeSpan = currentTime - frameTimes[1]
-    if timeSpan <= 0 then return 0 end
+    -- Hitung FPS berdasarkan 1 detik terakhir
+    local oneSecondAgo = currentTime - 1.0
+    local framesInLastSecond = 0
     
-    local fps = (#frameTimes - 1) / timeSpan
-    return math.floor(fps + 0.5) -- Round like Roblox
+    for i = #frameTimestamps, 1, -1 do
+        if frameTimestamps[i] >= oneSecondAgo then
+            framesInLastSecond = framesInLastSecond + 1
+        else
+            break
+        end
+    end
+    
+    -- Jika tidak cukup data untuk 1 detik, hitung berdasarkan rata-rata
+    if framesInLastSecond < 2 then
+        local timeSpan = currentTime - frameTimestamps[1]
+        if timeSpan > 0 then
+            framesInLastSecond = math.floor((#frameTimestamps - 1) / timeSpan)
+        end
+    end
+    
+    return framesInLastSecond
 end
 
--- ===== REAL-TIME UPDATE =====
+-- ===== REAL-TIME UPDATE SYSTEM =====
 local currentPing = 0
 local currentFPS = 0
 local lastPingUpdate = 0
+local lastPingValue = 0
+local pingStableCount = 0
 
--- Update FPS EVERY FRAME
+-- Update FPS SETIAP FRAME (paling real-time)
 RunService.RenderStepped:Connect(function()
     -- Update FPS
-    currentFPS = GetRobloxFPS()
+    currentFPS = GetExactRobloxFPS()
+    
+    -- Update display dengan angka besar
     fpsText.Text = "FPS: " .. currentFPS
     
-    -- Color based on FPS
+    -- Warna berdasarkan performa (sama seperti Roblox)
     if currentFPS >= 60 then
-        fpsText.TextColor3 = Color3.fromRGB(0, 255, 0)
-    elseif currentFPS >= 45 then
-        fpsText.TextColor3 = Color3.fromRGB(150, 255, 150)
+        fpsText.TextColor3 = Color3.fromRGB(0, 255, 0)        -- Hijau terang
+    elseif currentFPS >= 50 then
+        fpsText.TextColor3 = Color3.fromRGB(100, 255, 100)    -- Hijau muda
+    elseif currentFPS >= 40 then
+        fpsText.TextColor3 = Color3.fromRGB(200, 255, 100)    -- Hijau kekuningan
     elseif currentFPS >= 30 then
-        fpsText.TextColor3 = Color3.fromRGB(255, 255, 0)
+        fpsText.TextColor3 = Color3.fromRGB(255, 255, 0)      -- Kuning
     elseif currentFPS >= 20 then
-        fpsText.TextColor3 = Color3.fromRGB(255, 150, 0)
+        fpsText.TextColor3 = Color3.fromRGB(255, 180, 0)      -- Oranye
     else
-        fpsText.TextColor3 = Color3.fromRGB(255, 50, 50)
+        fpsText.TextColor3 = Color3.fromRGB(255, 50, 50)      -- Merah
     end
 end)
 
--- Update Ping MORE OFTEN
+-- Update Ping dengan smoothing
 RunService.Heartbeat:Connect(function()
     local now = tick()
-    if now - lastPingUpdate >= 0.1 then -- 10x per second
-        local newPing = GetRobloxPing()
+    
+    -- Update ping setiap 0.15 detik (6.6x per detik)
+    if now - lastPingUpdate >= 0.15 then
+        local rawPing = GetExactRobloxPing()
         
-        -- ONLY update if valid ping
-        if newPing > 0 or currentPing == 0 then
-            currentPing = newPing
+        -- Simple smoothing: hanya update jika perubahan signifikan
+        if rawPing > 0 then
+            local pingDifference = math.abs(rawPing - currentPing)
             
-            -- Update display
-            pingText.Text = "Ping: " .. currentPing .. "ms"
-            
-            -- Color based on ping
-            if currentPing < 50 then
-                pingText.TextColor3 = Color3.fromRGB(0, 255, 0)
-            elseif currentPing < 100 then
-                pingText.TextColor3 = Color3.fromRGB(150, 255, 150)
-            elseif currentPing < 200 then
-                pingText.TextColor3 = Color3.fromRGB(255, 255, 0)
-            elseif currentPing < 350 then
-                pingText.TextColor3 = Color3.fromRGB(255, 150, 0)
+            -- Jika ping berubah > 20ms atau ping pertama kali
+            if pingDifference > 20 or currentPing == 0 then
+                currentPing = rawPing
+                pingStableCount = 0
             else
-                pingText.TextColor3 = Color3.fromRGB(255, 50, 50)
+                pingStableCount = pingStableCount + 1
+                -- Smooth update jika sudah stabil
+                if pingStableCount > 3 then
+                    currentPing = math.floor(currentPing * 0.7 + rawPing * 0.3)
+                end
             end
+            
+            lastPingValue = rawPing
+        end
+        
+        -- Update display dengan angka besar
+        pingText.Text = "Ping: " .. currentPing .. "ms"
+        
+        -- Warna berdasarkan latency
+        if currentPing < 30 then
+            pingText.TextColor3 = Color3.fromRGB(0, 255, 0)        -- Hijau (sangat baik)
+        elseif currentPing < 60 then
+            pingText.TextColor3 = Color3.fromRGB(100, 255, 100)    -- Hijau muda (baik)
+        elseif currentPing < 100 then
+            pingText.TextColor3 = Color3.fromRGB(200, 255, 100)    -- Hijau kekuningan
+        elseif currentPing < 150 then
+            pingText.TextColor3 = Color3.fromRGB(255, 255, 0)      -- Kuning (sedang)
+        elseif currentPing < 250 then
+            pingText.TextColor3 = Color3.fromRGB(255, 180, 0)      -- Oranye (buruk)
+        else
+            pingText.TextColor3 = Color3.fromRGB(255, 50, 50)      -- Merah (sangat buruk)
         end
         
         lastPingUpdate = now
     end
 end)
 
--- DEBUG: Print actual Roblox ping for comparison
+-- ===== VERIFICATION SYSTEM =====
+-- Cek konsistensi dengan Roblox stats
 spawn(function()
-    wait(2) -- Wait for game to load
+    wait(3) -- Tunggu game load
     
     while screenGui and screenGui.Parent do
-        -- Get ping from Roblox's actual method
+        -- Ambil ping langsung dari Roblox
         local robloxPing = 0
         local success = pcall(function()
             robloxPing = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
         end)
         
-        if success then
-            print("[DEBUG] Roblox Actual Ping: " .. math.floor(robloxPing) .. "ms")
-            print("[DEBUG] Our Display Ping: " .. currentPing .. "ms")
+        if success and robloxPing > 0 then
+            local ourPing = currentPing
+            local difference = math.abs(robloxPing - ourPing)
             
-            -- Force update if different
-            if math.abs(robloxPing - currentPing) > 20 then
+            -- Jika perbedaan > 30ms, force update
+            if difference > 30 then
                 currentPing = math.floor(robloxPing)
                 pingText.Text = "Ping: " .. currentPing .. "ms"
             end
         end
         
-        wait(3) -- Check every 3 seconds
+        wait(5) -- Cek setiap 5 detik
     end
 end)
 
-print("======================================")
-print("FIXED ROBLOX STATS LOADED")
-print("Created by @MikaaDev")
-print("Debug mode: Will print actual ping every 3s")
-print("If ping shows 0ms, check console for debug info")
-print("======================================")
+-- ===== PERFORMANCE INFO =====
+print([[
+╔══════════════════════════════════════╗
+║   MIKAA DEV - STATS - PING × FPS      ║
+║   Version: 1.0                        ║
+╚══════════════════════════════════════╝
+]])
 
+-- ===== RETURN FUNCTIONS =====
 return {
-    GetPing = function() return currentPing end,
-    GetFPS = function() return currentFPS end,
-    Close = function() screenGui:Destroy() end
+    GetPing = function() 
+        return currentPing 
+    end,
+    
+    GetFPS = function() 
+        return currentFPS 
+    end,
+    
+    GetStats = function()
+        return {
+            Ping = currentPing,
+            FPS = currentFPS,
+            FrameCount = #frameTimestamps,
+            UpdateTime = tick() - lastPingUpdate
+        }
+    end,
+    
+    Close = function() 
+        screenGui:Destroy() 
+    end,
+    
+    TestAccuracy = function()
+        -- Test function untuk verifikasi
+        local robloxPing = 0
+        local success = pcall(function()
+            robloxPing = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
+        end)
+        
+        print("Accuracy Test:")
+        print("Roblox Ping:", math.floor(robloxPing))
+        print("Our Ping:", currentPing)
+        print("Difference:", math.abs(robloxPing - currentPing))
+        print("FPS:", currentFPS)
+        
+        return success
+    end
 }

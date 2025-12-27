@@ -77,17 +77,6 @@ fpsLabel.TextXAlignment = Enum.TextXAlignment.Left
 fpsLabel.Text = "FPS: --"
 fpsLabel.Parent = mainFrame
 
-local credit = Instance.new("TextLabel")
-credit.Size = UDim2.new(1,-10,0,10)
-credit.Position = UDim2.new(0,5,0,64)
-credit.BackgroundTransparency = 1
-credit.TextColor3 = Color3.fromRGB(180,180,180)
-credit.TextSize = 10
-credit.Font = Enum.Font.Gotham
-credit.TextXAlignment = Enum.TextXAlignment.Left
-credit.Text = "By MikaaDev"
-credit.Parent = mainFrame
-
 -- Dragging
 local dragging=false
 local dragStart, startPos
